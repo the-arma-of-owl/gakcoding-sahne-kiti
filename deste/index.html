@@ -1,0 +1,99 @@
+<!DOCTYPE html>
+<html lang="tr" data-paused="false" data-black="false">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="color-scheme" content="dark">
+<!-- konuşmanın hedef süresi (dakika); sunucu görünümünde süre bunu geçince kızarır -->
+<meta name="sure" content="10">
+<title>Örnek deste · GakCoding sahne kiti</title>
+<link rel="icon" href="data:,">
+<link rel="stylesheet" href="fonts/fonts.css">
+<link rel="stylesheet" href="fonts/fonts-gece.css">
+<link rel="stylesheet" href="styles.css">
+<link rel="stylesheet" href="tema-gece.css">
+<link rel="stylesheet" href="yeni.css">
+<script>
+  /* koyu "gece" teması; açık klasik tema için bu satırı kaldırın */
+  document.documentElement.dataset.tema = 'gece';
+</script>
+</head>
+<body>
+<!--
+  ÖRNEK DESTE. Bu, sahne kitinin "Sunum" ekranında açılan yer tutucu destedir.
+  Kendi konuşmanızı buraya yazın: her <section class="slide"> bir slayttır,
+  <aside class="notes"> sunucu görünümündeki konuşmacı notudur.
+  Kura slaydı (#kura) kura.js ile çalışır; takım ve konu listesi kura.js'in başındadır.
+-->
+<div class="viewport">
+<div class="deck" id="deck" data-layout="statement">
+
+  <div class="bg-field" aria-hidden="true"></div>
+  <div class="bg-vignette" aria-hidden="true"></div>
+  <div class="bg-art" id="bg-art" aria-hidden="true"></div>
+
+  <header class="masthead">
+    <div class="brand">
+      <span class="brand-mark"><span class="bm-klasik">gakcoding</span><span class="bm-gece">gakcoding</span></span>
+      <span class="brand-dot" aria-hidden="true"></span>
+    </div>
+    <span class="rule-v" aria-hidden="true"></span>
+    <p class="series">Örnek deste</p>
+    <span class="masthead-end">Etkinlik adı · Şehir 2026</span>
+  </header>
+
+  <main class="slides">
+
+<section class="slide" data-layout="statement" data-chapter="Açılış">
+<div class="head"><p class="kicker"><span class="kicker-num">01</span><span class="kicker-dot"></span><span class="kicker-text">Hoş geldiniz</span></p><h2 class="title">Bugün bir ürün çıkarıyoruz.</h2><p class="lede">Örnek deste: kendi konuşmanızı <b>deste/index.html</b> içine yazın.</p></div>
+<aside class="notes"><p>Bu bir örnek slayttır. Konuşmacı notları sunucu görünümünde burada görünür.</p></aside></section>
+
+<section class="slide" data-layout="statement" data-chapter="Akış">
+<div class="head"><p class="kicker"><span class="kicker-num">02</span><span class="kicker-dot"></span><span class="kicker-text">Günün akışı</span></p><h2 class="title">Açılış, kura, kodlama, jüri, ödüller.</h2><p class="lede">Her adımın salon ekranı kontrol panelinden tek tıkla açılır.</p></div>
+<aside class="notes"><p>Akışı kısaca anlat, ardından kuraya geç.</p></aside></section>
+
+<section class="slide" data-layout="statement" data-chapter="Kurallar">
+<div class="head"><p class="kicker"><span class="kicker-num">03</span><span class="kicker-dot"></span><span class="kicker-text">Kurallar</span></p><h2 class="title">6 saat. 15 takım. Tek ürün.</h2><p class="lede">Kodlama sayacı salon ekranında geri sayar.</p></div>
+<aside class="notes"><p>Süreyi kontrol panelindeki Kodlama ekranından ayarla.</p></aside></section>
+
+<section class="slide" data-layout="stack" data-chapter="Kura">
+<div class="head"><h2 class="title"></h2></div><div class="body"><div class="kura" id="kura"></div></div>
+<aside class="notes"><p>Boşluk, sağ ok, kumanda ya da tıklama çarkı çevirir. Takımlar sırayla gider, çıkan sayı konunun numarasıdır.</p><p>Yanlış çevirişte Son kurayı geri al, provadan sonra Çarkı sıfırla. İkisi de iki kez basma ister.</p></aside></section>
+
+<section class="slide" data-layout="end" data-chapter="Kapanış">
+<div class="head"><p class="kicker"><span class="kicker-num">04</span><span class="kicker-dot"></span><span class="kicker-text">Kodlama başlıyor</span></p><h2 class="title">Bol şans.</h2><p class="lede">Telefonunuzdan şarkı isteyebilir, fotoğraf gönderebilirsiniz.</p></div>
+<aside class="notes"><p>Kontrol panelinden Kodlama ekranını yayınla.</p></aside></section>
+
+  </main>
+
+  <footer class="statusline">
+    <span class="sl-dot" aria-hidden="true"></span>
+    <span class="sl-num" id="sl-num">01</span>
+    <span class="sl-sep" aria-hidden="true"></span>
+    <span class="sl-name" id="sl-name"></span>
+    <span class="sl-sep" aria-hidden="true"></span>
+    <span class="sl-prog" id="sl-prog" aria-hidden="true"></span>
+    <span class="sl-count" id="sl-count"></span>
+    <span class="sl-gap"></span>
+    <span class="sl-end">GakCoding sahne kiti</span>
+  </footer>
+
+  <div class="palette" id="palette" hidden>
+    <input class="palette-input" id="palette-input" type="text" spellcheck="false" placeholder="Slayt ara ya da numara yaz" aria-label="Slayt ara">
+    <div class="palette-hint"><kbd class="kbd">↑</kbd><kbd class="kbd">↓</kbd> seç · <kbd class="kbd">Enter</kbd> git · <kbd class="kbd">Esc</kbd> kapat</div>
+    <ul class="palette-list" id="palette-list" role="listbox"></ul>
+  </div>
+
+  <div class="toast" id="toast" role="status" aria-live="polite"></div>
+  <canvas class="wipe" id="wipe" aria-hidden="true"></canvas>
+  <div class="grain" aria-hidden="true"></div>
+</div>
+</div>
+
+<div class="blackout" aria-hidden="true"></div>
+
+<script type="module" src="deck.js"></script>
+<script type="module" src="sahne-kopru.js"></script>
+<script src="kura.js"></script>
+</body>
+</html>

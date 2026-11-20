@@ -1,0 +1,261 @@
+<!doctype html>
+<html lang="tr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>GakCoding Salon Krokisi</title>
+<link rel="stylesheet" href="../sahne-ekranlari/fonts/fonts-efe.css">
+<style>
+  /* Kuşbakışı salon planı: solda ölçekli çizim (1 birim = 1 metre), sağda ayarlar ve hesaplar */
+  :root {
+    --bg: #001937; --panel: rgba(4,16,38,.85); --edge: rgba(217,168,91,.35);
+    --gold: #d9a85b; --gold-bright: #f0c987; --fg: #e9e3d6; --fg-mute: #9aa6b8;
+    --zemin: #0b2a4f; --sahne: #183e6b; --kirmizi: #e0685a; --yesil: #7fc79a;
+  }
+  * { box-sizing: border-box; }
+  body { margin: 0; background: radial-gradient(120% 80% at 50% -20%, #0a2547, transparent 60%) fixed, var(--bg); color: var(--fg); font: 15px/1.45 'Geist', system-ui, sans-serif; }
+  header { display: flex; align-items: center; gap: 14px; padding: 14px 22px; border-bottom: 1px solid var(--edge); }
+  header img { height: 34px; }
+  header h1 { font-size: 17px; color: var(--gold); margin: 0; font-weight: 650; }
+  header p { margin: 0 0 0 auto; color: var(--fg-mute); font-size: 13px; }
+  main { display: grid; grid-template-columns: minmax(0, 1fr) 360px; gap: 18px; padding: 18px 22px; }
+  @media (max-width: 1000px) { main { grid-template-columns: 1fr; } }
+  .cizim { background: var(--panel); border: 1px solid var(--edge); border-radius: 12px; padding: 12px; min-width: 0; }
+  /* plan tek ekrana sığsın: yükseklik pencereye göre, genişlik orana göre */
+  svg { width: 100%; height: calc(100vh - 120px); min-height: 360px; display: block; touch-action: none; user-select: none; }
+  aside { max-height: calc(100vh - 96px); overflow-y: auto; }
+  @media (max-width: 1000px) { aside { max-height: none; } }
+  aside { display: flex; flex-direction: column; gap: 14px; }
+  section { background: var(--panel); border: 1px solid var(--edge); border-radius: 12px; padding: 14px 16px; }
+  h2 { margin: 0 0 10px; font: 600 12px 'Geist Mono', monospace; letter-spacing: .14em; text-transform: uppercase; color: var(--fg-mute); }
+  label { display: grid; grid-template-columns: 1fr 92px; align-items: center; gap: 8px; margin: 6px 0; font-size: 14px; }
+  input[type=number] { width: 100%; background: #021229; color: var(--fg); border: 1px solid var(--edge); border-radius: 6px; padding: 5px 8px; font: 14px 'Geist Mono', monospace; }
+  .dugmeler { display: flex; gap: 8px; flex-wrap: wrap; margin-top: 10px; }
+  button { background: transparent; color: var(--gold-bright); border: 1px solid var(--gold); border-radius: 8px; padding: 7px 12px; font: inherit; font-size: 14px; cursor: pointer; }
+  button:hover { background: rgba(217,168,91,.12); }
+  .sonuc { font-size: 14px; }
+  .sonuc div { display: flex; justify-content: space-between; gap: 10px; padding: 4px 0; border-bottom: 1px dashed rgba(255,255,255,.08); }
+  .sonuc b { font: 600 14px 'Geist Mono', monospace; color: var(--gold-bright); font-variant-numeric: tabular-nums; }
+  .uyari { color: var(--kirmizi) !important; }
+  .iyi { color: var(--yesil) !important; }
+  .not { font-size: 13px; color: var(--fg-mute); margin: 8px 0 0; }
+  .not li { margin: 4px 0; }
+  .masa { cursor: grab; }
+  .masa.surukleniyor { cursor: grabbing; }
+</style>
+</head>
+<body>
+<header>
+  <img src="../sahne-ekranlari/assets/giris/logo-gakcoding-acik.webp" alt="GakCoding">
+  <h1>Salon krokisi · 360 kişilik örnek salon</h1>
+  <p>Masaları sürükle · ölçüler metre</p>
+</header>
+<main>
+  <div class="cizim"><svg id="plan"></svg></div>
+  <aside>
+    <section>
+      <h2>Salon</h2>
+      <label>Genişlik (m) <input id="g" type="number" step="0.5" min="10" max="40"></label>
+      <label>Derinlik, sahne dahil (m) <input id="d" type="number" step="0.5" min="10" max="40"></label>
+      <label>Sahne derinliği (m) <input id="sd" type="number" step="0.5" min="0" max="8"></label>
+      <label>Protokol sırası (önde) <input id="ps" type="number" step="1" min="0" max="8"></label>
+      <label>Sıradaki sandalye (iki blok) <input id="pk" type="number" step="2" min="4" max="30"></label>
+    </section>
+    <section>
+      <h2>Masalar</h2>
+      <label>Takım sayısı <input id="t" type="number" step="1" min="1" max="40"></label>
+      <label>Masa çapı (cm) <input id="mc" type="number" step="5" min="50" max="180"></label>
+      <div class="dugmeler">
+        <button id="diz">Otomatik diz</button>
+        <button id="sasirt">Şaşırtmalı diz</button>
+      </div>
+    </section>
+    <section class="sonuc" id="sonuc"></section>
+    <section>
+      <h2>Varsayımlar</h2>
+      <ul class="not">
+        <li>Resmî kaynak salonu “360 kişilik çok amaçlı salon” diye veriyor, ölçü yayınlanmamış. Ölçüler fotoğraflardaki sandalye sayısından çıkarıldı: 2 blok × 10 sandalye, ~18 sıra, sandalye aralığı 0,5 m, sıra aralığı 0,9 m.</li>
+        <li>Masa ölçüsü videodaki yuvarlak kafe masalarından (~75 cm). Sandalye masadan 55 cm taşar.</li>
+        <li>Ön tarafta alçak sahne, protokol masası ve kürsü; protokol sıraları sahnenin önünde, takımlar arkada; kapılar arka duvarda.</li>
+        <li>Gerçek ölçü farklıysa soldaki kutulara yaz, plan kendini günceller.</li>
+      </ul>
+    </section>
+  </aside>
+</main>
+<script>
+const NS = 'http://www.w3.org/2000/svg';
+const svg = document.getElementById('plan');
+const ANAHTAR = 'gak-salon-krokisi-2';
+const VARSAYILAN = { g: 18, d: 24, sd: 3.5, ps: 3, pk: 20, t: 15, mc: 75 };
+const SIRA = 0.9, KOLTUK = 0.5, KORIDOR = 1.5, SANDALYE = 0.55, GECIS = 0.9;
+
+let A = { ...VARSAYILAN }, masalar = [];
+try { const k = JSON.parse(localStorage.getItem(ANAHTAR)); if (k) { A = { ...A, ...k.A }; masalar = k.masalar || []; } } catch {}
+const kaydet = () => { try { localStorage.setItem(ANAHTAR, JSON.stringify({ A, masalar })); } catch {} };
+
+for (const k of Object.keys(VARSAYILAN)) {
+  const el = document.getElementById(k);
+  el.value = A[k];
+  el.addEventListener('input', () => {
+    const v = parseFloat(el.value); if (!isFinite(v)) return;
+    A[k] = v;
+    if (k === 't' || k === 'g' || k === 'd' || k === 'sd' || k === 'ps') diz(false);
+    else ciz();
+  });
+}
+
+// protokol sıraları sahnenin hemen önünde; masalar protokolün arkasından arka kapı önüne kadar
+function alan() {
+  const protokolBitis = protokolBas() + A.ps * SIRA;
+  const ust = protokolBitis + (A.ps ? 1.5 : 0);  // protokolün arkasında 1,5 m geçiş
+  const alt = A.d - 1.2;                        // arka kapı önü 1,2 m geçiş
+  return { x0: 1.2, x1: A.g - 1.2, y0: ust, y1: alt };
+}
+const protokolBas = () => A.sd + 1.0;          // sahne önünde 1 m boşluk
+const ayakIzi = () => A.mc / 200 + SANDALYE;   // masa + sandalye yarıçapı (m)
+
+function diz(sasirt) {
+  const { x0, x1, y0, y1 } = alan(), r = ayakIzi(), n = A.t;
+  const adim = 2 * r + GECIS;
+  // satırlar dengeli dolsun: 15 masa 6+6+3 değil 5+5+5
+  const enCok = Math.max(1, Math.floor((x1 - x0 - 2 * r) / adim) + 1);
+  const satir = Math.ceil(n / enCok), sutun = Math.ceil(n / satir);
+  // satırlar arası rahat bir aralık; alan büyükse blok ortalanır
+  const satirAdim = satir > 1 ? Math.min((y1 - y0 - 2 * r) / (satir - 1), 2 * r + 2) : 0;
+  const basY = (y0 + y1) / 2 - satirAdim * (satir - 1) / 2;
+  masalar = [];
+  for (let i = 0; i < n; i++) {
+    const s = Math.floor(i / sutun), c = i % sutun;
+    const buSatir = Math.min(sutun, n - s * sutun);
+    const genislik = x1 - x0, aralik = genislik / buSatir;
+    let x = x0 + aralik * (c + 0.5);
+    if (sasirt && s % 2) x += Math.min(aralik / 4, 0.8) * (c === buSatir - 1 ? -1 : 1);
+    const y = basY + satirAdim * s;
+    masalar.push({ x: +x.toFixed(2), y: +y.toFixed(2) });
+  }
+  ciz();
+}
+
+const el = (ad, o = {}, ana = svg) => { const e = document.createElementNS(NS, ad); for (const k in o) e.setAttribute(k, o[k]); ana.append(e); return e; };
+const yazi = (x, y, t, o = {}, ana) => { const e = el('text', { x, y, 'font-size': 0.42, fill: '#9aa6b8', 'text-anchor': 'middle', 'font-family': 'Geist, sans-serif', ...o }, ana); e.textContent = t; return e; };
+
+function ciz() {
+  svg.innerHTML = '';
+  const m = 1.6;                                 // ölçü çizgileri için kenar
+  svg.setAttribute('viewBox', `${-m} ${-m} ${A.g + 2 * m} ${A.d + 2 * m}`);
+  // zemin ve duvarlar
+  el('rect', { x: 0, y: 0, width: A.g, height: A.d, fill: '#0b2a4f', stroke: '#d9a85b', 'stroke-width': 0.15 });
+  // 1 m ızgara
+  for (let x = 1; x < A.g; x++) el('line', { x1: x, y1: 0, x2: x, y2: A.d, stroke: 'rgba(255,255,255,.05)', 'stroke-width': 0.03 });
+  for (let y = 1; y < A.d; y++) el('line', { x1: 0, y1: y, x2: A.g, y2: y, stroke: 'rgba(255,255,255,.05)', 'stroke-width': 0.03 });
+  // sahne, protokol masası, kürsü, perde
+  if (A.sd > 0) {
+    el('rect', { x: 0, y: 0, width: A.g, height: A.sd, fill: '#183e6b', stroke: 'rgba(217,168,91,.5)', 'stroke-width': 0.05 });
+    el('rect', { x: A.g / 2 - 2.5, y: A.sd * 0.45, width: 5, height: 0.7, fill: '#2b4f7c', rx: 0.08 });
+    for (let i = 0; i < 6; i++) el('circle', { cx: A.g / 2 - 2.1 + i * 0.84, cy: A.sd * 0.45 - 0.35, r: 0.24, fill: '#3a628f' });
+    el('rect', { x: A.g - 3, y: A.sd * 0.5, width: 0.6, height: 0.5, fill: '#8a6a3c' });
+    yazi(A.g - 2.7, A.sd * 0.5 - 0.2, 'kürsü', { 'font-size': 0.36 });
+    yazi(A.g / 2, A.sd - 0.35, 'SAHNE · protokol masası', { 'font-size': 0.45, fill: '#d9a85b' });
+  }
+  el('rect', { x: 1.5, y: 0.05, width: 4.5, height: 0.15, fill: '#f0c987' });
+  yazi(3.75, 0.7, 'perde / ekran', { 'font-size': 0.36 });
+  // kapılar arka duvarda
+  for (const kx of [A.g * 0.3, A.g * 0.7]) {
+    el('rect', { x: kx - 0.9, y: A.d - 0.1, width: 1.8, height: 0.2, fill: '#001937' });
+    el('path', { d: `M${kx - 0.9} ${A.d} A1.8 1.8 0 0 1 ${kx + 0.9} ${A.d}`, fill: 'none', stroke: 'rgba(240,201,135,.4)', 'stroke-width': 0.04 });
+    yazi(kx, A.d + 0.7, 'kapı', { 'font-size': 0.38 });
+  }
+  // protokol sıraları
+  if (A.ps > 0) {
+    const yari = Math.ceil(A.pk / 2), blok = yari * KOLTUK;
+    const sx = A.g / 2 - KORIDOR / 2 - blok, sagx = A.g / 2 + KORIDOR / 2;
+    for (let s = 0; s < A.ps; s++) {
+      const y = protokolBas() + s * SIRA + 0.15;
+      for (const bx of [sx, sagx]) for (let i = 0; i < yari; i++)
+        el('rect', { x: bx + i * KOLTUK + 0.04, y, width: KOLTUK - 0.08, height: 0.45, rx: 0.06, fill: '#a83a3a' });
+    }
+    yazi(A.g / 2, protokolBas() + A.ps * SIRA + 0.35, `Protokol · ön ${A.ps} sıra · ${A.ps * yari * 2} sandalye`, { fill: '#e9e3d6', 'font-size': 0.42 });
+  }
+  // ölçüler
+  el('line', { x1: 0, y1: -0.8, x2: A.g, y2: -0.8, stroke: '#9aa6b8', 'stroke-width': 0.03 });
+  yazi(A.g / 2, -1, `${A.g} m`, { 'font-size': 0.5, fill: '#e9e3d6' });
+  el('line', { x1: -0.8, y1: 0, x2: -0.8, y2: A.d, stroke: '#9aa6b8', 'stroke-width': 0.03 });
+  yazi(-1, A.d / 2, `${A.d} m`, { 'font-size': 0.5, fill: '#e9e3d6', transform: `rotate(-90 -1 ${A.d / 2})` });
+  // uzatma kablosu hatları: her masa sırası boyunca kenar duvara
+  const satirlar = {};
+  for (const t of masalar) (satirlar[Math.round(t.y * 2)] ||= []).push(t);
+  for (const k in satirlar) {
+    const s = satirlar[k].sort((a, b) => a.x - b.x), y = s[0].y;
+    el('line', { x1: 0, y1: y, x2: s[s.length - 1].x, y2: y, stroke: '#f0c987', 'stroke-width': 0.05, 'stroke-dasharray': '0.25 0.2', opacity: 0.55 });
+  }
+  // masalar
+  const r = ayakIzi(), mr = A.mc / 200, sorun = cakisanlar();
+  masalar.forEach((t, i) => {
+    const g = el('g', { class: 'masa', transform: `translate(${t.x} ${t.y})`, 'data-i': i });
+    el('circle', { r, fill: sorun.has(i) ? 'rgba(224,104,90,.18)' : 'rgba(127,199,154,.07)', stroke: sorun.has(i) ? '#e0685a' : 'rgba(127,199,154,.35)', 'stroke-width': 0.04, 'stroke-dasharray': '0.15 0.12' }, g);
+    for (let a = 0; a < 4; a++) {
+      const aci = Math.PI / 4 + a * Math.PI / 2, u = mr + 0.25;
+      el('rect', { x: -0.22, y: -0.22, width: 0.44, height: 0.44, rx: 0.08, fill: '#c9a26a', transform: `translate(${(Math.cos(aci) * u).toFixed(3)} ${(Math.sin(aci) * u).toFixed(3)}) rotate(${aci * 180 / Math.PI + 90})` }, g);
+    }
+    el('circle', { r: mr, fill: '#e9dcc3', stroke: '#8a6a3c', 'stroke-width': 0.04 }, g);
+    yazi(0, 0.16, i + 1, { 'font-size': 0.45, fill: '#001937', 'font-weight': 700 }, g);
+  });
+  sonucYaz(sorun);
+  kaydet();
+}
+
+// sandalyeleri birbirine 60 cm'den yakın masalar ya da duvara/protokole taşanlar
+function cakisanlar() {
+  const r = ayakIzi(), s = new Set(), { y1 } = alan();
+  masalar.forEach((a, i) => {
+    if (a.x - r < 0.3 || a.x + r > A.g - 0.3 || a.y - r < alan().y0 - 0.6 || a.y + r > y1 + 0.6) s.add(i);
+    masalar.forEach((b, j) => { if (j > i && Math.hypot(a.x - b.x, a.y - b.y) < 2 * r + 0.6) { s.add(i); s.add(j); } });
+  });
+  return s;
+}
+
+function sonucYaz(sorun) {
+  const r = ayakIzi();
+  let enYakin = Infinity;
+  masalar.forEach((a, i) => masalar.forEach((b, j) => { if (j > i) enYakin = Math.min(enYakin, Math.hypot(a.x - b.x, a.y - b.y) - 2 * r); }));
+  const kisiBasi = Math.PI * A.mc / 4;                 // cm masa kenarı
+  const tabla = Math.PI * (A.mc / 200) ** 2;            // m²
+  const laptop = 0.33 * 0.23;                           // 14" laptop m²
+  // yuvarlak tablada köşeler boşa gider; dört laptop ortada çakışır, alanın ~%55'i kullanılabilir
+  const sigar = Math.floor(tabla * 0.55 / laptop);
+  const iyi = (b) => b ? 'iyi' : 'uyari';
+  document.getElementById('sonuc').innerHTML = `
+    <h2>Hesap</h2>
+    <div><span>Masa / takım</span><b>${masalar.length} masa · ${masalar.length * 4} kişi</b></div>
+    <div><span>Kişi başına masa kenarı</span><b class="${iyi(kisiBasi >= 60)}">${kisiBasi.toFixed(0)} cm</b></div>
+    <div><span>Tabla alanı</span><b>${tabla.toFixed(2)} m²</b></div>
+    <div><span>Rahat sığan 14″ laptop</span><b class="${iyi(sigar >= 4)}">${sigar} adet</b></div>
+    <div><span>Sandalyeler arası en dar geçiş</span><b class="${iyi(enYakin >= 0.9)}">${isFinite(enYakin) ? (enYakin * 100).toFixed(0) + ' cm' : '–'}</b></div>
+    <div><span>Sorunlu masa</span><b class="${iyi(!sorun.size)}">${sorun.size ? [...sorun].map((i) => i + 1).join(', ') : 'yok'}</b></div>
+    <p class="not">${A.mc}&nbsp;cm masada 4 kişi oturur ama dar: kişi başı ${kisiBasi.toFixed(0)}&nbsp;cm (rahat çalışma için ~60&nbsp;cm). Aynı anda ${sigar} laptop rahat açık durur; takım 2–3 laptopla çalışırsa sorun yok, 4 laptop köşeleri çakıştırır. Her masaya 1 uzatma (4'lü priz), kablolar kesikli çizgiler boyunca duvardaki prize.</p>`;
+}
+
+// sürükle bırak
+let tutulan = null, fark;
+const nokta = (e) => { const p = svg.createSVGPoint(); p.x = e.clientX; p.y = e.clientY; return p.matrixTransform(svg.getScreenCTM().inverse()); };
+svg.addEventListener('pointerdown', (e) => {
+  const g = e.target.closest('.masa'); if (!g) return;
+  tutulan = +g.dataset.i; const p = nokta(e);
+  fark = { x: masalar[tutulan].x - p.x, y: masalar[tutulan].y - p.y };
+  svg.setPointerCapture(e.pointerId);
+});
+svg.addEventListener('pointermove', (e) => {
+  if (tutulan === null) return;
+  const p = nokta(e);
+  masalar[tutulan] = { x: Math.round((p.x + fark.x) * 10) / 10, y: Math.round((p.y + fark.y) * 10) / 10 };
+  ciz();
+  svg.querySelector(`[data-i="${tutulan}"]`)?.classList.add('surukleniyor');
+});
+svg.addEventListener('pointerup', () => { tutulan = null; });
+document.getElementById('diz').onclick = () => diz(false);
+document.getElementById('sasirt').onclick = () => diz(true);
+
+if (masalar.length !== A.t) diz(false); else ciz();
+</script>
+</body>
+</html>

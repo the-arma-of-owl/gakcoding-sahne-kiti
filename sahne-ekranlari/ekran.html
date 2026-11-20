@@ -1,0 +1,128 @@
+<!doctype html>
+<html lang="tr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>GakCoding Sahne</title>
+<link rel="stylesheet" href="fonts/fonts-gece.css?v=6">
+<link rel="stylesheet" href="ekran.css?v=42">
+</head>
+<body>
+<div class="tuval" id="tuval" data-sahne="bekleme">
+
+  <!-- ortak arka plan (sunum hariç her sahne): robot videosu, karartma, kilim köşeleri -->
+  <div class="g-sahne ortak-arka">
+    <video class="g-video" id="arka-video" src="assets/giris/robot-dongu.mp4" poster="assets/giris/arka-temiz.webp" autoplay muted loop playsinline></video>
+    <div class="g-karartma"></div>
+    <div class="g-koyu"></div>
+    <img class="g-kilim" src="assets/giris/kilim-opak.webp" alt="">
+  </div>
+
+  <header class="serit">
+    <img class="serit-logo" src="assets/giris/logo-gakcoding-acik.webp" alt="GakCoding">
+    <div class="serit-sag"><span class="yer"></span><span class="saat" id="saat">--:--</span></div>
+  </header>
+
+  <section class="sahne" id="s-bekleme">
+    <div class="g-sahne g-ust">
+      <div class="g-sol">
+        <img class="g-gak" src="assets/giris/logo-gakcoding-acik.webp" alt="GakCoding">
+      </div>
+      <div class="g-logolar">
+        <img src="assets/pankart/logo-ornek.webp" alt="Logo">
+      </div>
+    </div>
+    <!-- şarkı kutusu: üstte QR, altta şimdi çalan (panelden gizlenebilir) -->
+    <div class="b-kutu">
+      <div class="b-qr"><div class="qr-kod" data-qr="sarki"></div><b>Şarkı iste</b><span>Telefonunla okut</span></div>
+      <div class="calan b-calan"><img class="calan-kapak" alt="" hidden><span class="dalga"><i></i><i></i><i></i><i></i></span><div><small>Şimdi çalıyor</small><span class="calan-ad">—</span></div></div>
+    </div>
+  </section>
+
+  <section class="sahne" id="s-konusmaci">
+    <!-- sakin zemin: konuşmacıya özel görsel > konuşmacı ekranı görseli > posterin Harput gecesi -->
+    <img class="k-arka-bulanik" id="k-arka-bulanik" alt="">
+    <img class="k-arka" id="k-arka" src="assets/giris/arka-temiz.webp" alt="">
+    <div class="k-karartma"></div>
+    <img class="g-kilim" src="assets/giris/kilim-opak.webp" alt="">
+    <div class="icerik">
+      <div class="k-foto" id="k-foto-kutu" hidden><img id="k-foto" alt=""></div>
+      <div class="kicker">Sahnede</div>
+      <h1 id="k-ad"></h1>
+      <div class="unvan" id="k-unvan"></div>
+      <div class="k-logo" id="k-logo-kutu" hidden><img id="k-logo" alt=""></div>
+      <div class="konu" id="k-konu"></div>
+    </div>
+  </section>
+
+  <section class="sahne" id="s-sunum"></section>
+
+  <section class="sahne" id="s-kodlama">
+    <div class="sol" id="kod-sol">
+      <div class="kicker">Kodlama sürüyor</div>
+      <div class="geri tayf" id="kod-geri">--:--:--</div>
+      <div class="kod-bar" id="kod-bar"><div class="kb-dolu" id="kod-bar-dolu"></div></div>
+      <div class="geri-alt" id="kod-alt"></div>
+    </div>
+    <div class="alt-qr">
+      <div class="qr cam"><div class="qr-kod" data-qr="sarki"></div><div><b>Şarkı iste</b><span>Sıraya senin şarkın girsin.</span></div></div>
+      <div class="qr cam"><div class="qr-kod" data-qr="foto"></div><div><b>Fotoğraf gönder</b><span>Canlı galeride görün.</span></div></div>
+    </div>
+    <div class="sag">
+      <div class="cam video-yeri"></div>
+      <div class="cam simdi"><img class="calan-kapak" alt="" hidden><div><small>Şimdi çalıyor</small><span class="calan-ad">—</span></div></div>
+      <div class="cam sira"><small>Sıradaki şarkılar</small><ol id="sira"></ol></div>
+    </div>
+  </section>
+
+  <section class="sahne" id="s-galeri">
+    <div class="arka" id="g-arka"></div>
+    <div class="duvar" id="g-duvar"></div>
+    <img class="g-kilim" src="assets/giris/kilim-opak.webp" alt="">
+    <div class="bos-mesaj" id="g-bos">İlk fotoğrafı sen gönder.</div>
+    <div class="etiket cam"><b>Canlı galeri</b><span id="g-sayi"></span></div>
+    <div class="alt-sag"><div class="qr cam"><div class="qr-kod" data-qr="foto"></div><div><b>Fotoğraf gönder</b><span>Okut, çek, gönder.</span></div></div></div>
+  </section>
+
+  <section class="sahne" id="s-mola">
+    <div>
+      <h1>Mola</h1>
+      <div class="geri tayf" id="mola-geri"></div>
+      <div class="geri-alt" id="mola-alt"></div>
+    </div>
+    <div class="alt-sol"><div class="calan cam"><img class="calan-kapak" alt="" hidden><span class="dalga"><i></i><i></i><i></i><i></i></span><div><small>Şimdi çalıyor</small><span class="calan-ad">—</span></div></div></div>
+  </section>
+
+  <section class="sahne" id="s-duyuru">
+    <div><h1 data-alan="duyuru.baslik"></h1><p data-alan="duyuru.alt"></p></div>
+  </section>
+
+  <section class="sahne" id="s-takim">
+    <img class="g-kilim" src="assets/giris/kilim-opak.webp" alt="">
+    <div class="t-kart" id="t-kart">
+      <div class="t-foto" id="t-foto-kutu" hidden><img id="t-foto" alt=""></div>
+      <div class="t-yazi">
+        <div class="kicker" id="t-derece"></div>
+        <h1 id="t-ad"></h1>
+        <div class="t-proje" id="t-proje"></div>
+        <div class="t-odul" id="t-odul"></div>
+        <div class="t-uyeler" id="t-uyeler"></div>
+        <div class="t-site" id="t-site-kutu" hidden><div class="qr-kod" id="t-qr"></div><span id="t-site"></span></div>
+      </div>
+    </div>
+    <!-- canlı site / video / YouTube: tuvalin tamamı -->
+    <div class="t-medya" id="t-medya" hidden></div>
+    <div class="t-oniz" id="t-oniz" hidden></div>
+  </section>
+
+  <div id="oynatici"><div id="yt"></div></div>
+</div>
+
+<div class="perde" id="perde" hidden><div>Müziği başlatmak için tıkla<small>Tarayıcı otomatik oynatmayı engelledi. Brave'de site ayarlarından "Otomatik oynatma: izin ver" açarsan bu ekran çıkmaz.</small></div></div>
+
+<script src="lib/qrcode.js"></script>
+<script type="module" src="ekran.js?v=37"></script>
+<!-- panik: her şeyin üstünde etkinlik posteri (panelde PANİK ya da B / nokta tuşu) -->
+<div class="panik" id="panik" hidden><img src="assets/pankart/poster.webp" alt="GakCoding · 1 Kasım 2026"></div>
+</body>
+</html>

@@ -1,0 +1,85 @@
+<!doctype html>
+<html lang="tr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#001937">
+<meta name="referrer" content="no-referrer">
+<meta name="robots" content="noindex">
+<title>GakCoding · Jüri</title>
+<link rel="stylesheet" href="fonts/fonts.css">
+<style>
+  :root { --bg: #001937; --bg-deep: #000c1c; --panel: rgba(4, 16, 38, 0.82); --edge: rgba(217, 168, 91, 0.38); --fg: #fbf6ee; --soft: #cdd3df; --mute: #8f9ab0; --gold: #d9a85b; --gold-bright: #f0c987; --slate: #4cd394; --clay: #ff7f66; }
+  * { box-sizing: border-box; margin: 0; }
+  body { min-height: 100dvh; color: var(--fg); font: 16px/1.45 'Geist', system-ui, sans-serif; background: linear-gradient(180deg, var(--bg), var(--bg-deep)); }
+  main { max-width: 640px; margin: 0 auto; padding: max(24px, env(safe-area-inset-top)) 16px 96px; }
+  header { text-align: center; margin-bottom: 20px; }
+  header img { width: min(210px, 60vw); height: auto; }
+  h1 { font-size: 24px; margin-top: 10px; }
+  .not { color: var(--soft); margin-top: 4px; }
+  .kart { border: 1px solid var(--edge); border-radius: 16px; background: var(--panel); padding: 16px; margin-top: 12px; }
+  .kart.tamam { border-color: var(--slate); }
+  .kart h2 { font-size: 20px; line-height: 1.2; overflow-wrap: anywhere; }
+  .kart p { color: var(--gold-bright); font-size: 15px; margin-top: 2px; overflow-wrap: anywhere; }
+  .kart a { display: inline-block; margin-top: 8px; color: var(--fg); font-size: 15px; overflow-wrap: anywhere; }
+  .puanlar { display: grid; grid-template-columns: repeat(5, 1fr); gap: 6px; margin-top: 12px; }
+  .puanlar button { min-height: 44px; font: 600 17px 'Geist', system-ui, sans-serif; color: var(--fg); background: rgba(0, 12, 28, .75); border: 1px solid var(--edge); border-radius: 10px; cursor: pointer; }
+  .puanlar button[aria-pressed=true] { background: var(--gold); border-color: var(--gold); color: #1a1205; }
+  .puanlar button:disabled { opacity: .5; cursor: default; }
+  .alt { position: fixed; left: 0; right: 0; bottom: 0; padding: 12px 16px max(12px, env(safe-area-inset-bottom)); text-align: center; background: rgba(0, 12, 28, .94); border-top: 1px solid var(--edge); }
+  .hata { color: var(--clay); }
+</style>
+</head>
+<body>
+<main>
+  <header><img src="logo.webp" alt="GakCoding"><h1 id="baslik">Jüri oylaması</h1><p class="not" id="alt">Yükleniyor…</p></header>
+  <div id="liste"></div>
+</main>
+<div class="alt" id="durum" hidden></div>
+<script>
+  const k = location.hash.slice(1), $ = (id) => document.getElementById(id);
+  let V = null;
+  const yaz = (m, hata) => { $('alt').textContent = m; $('alt').classList.toggle('hata', !!hata); };
+  const post = async (yol, g) => {
+    const r = await fetch(yol, { method: 'POST', headers: { 'content-type': 'application/json' }, body: JSON.stringify({ k, ...g }) });
+    const d = await r.json().catch(() => ({}));
+    if (!r.ok) throw new Error(d.hata || 'Bağlantı sorunu, tekrar dene.');
+    return d;
+  };
+  function ciz() {
+    $('baslik').textContent = `Merhaba ${V.ad}`;
+    yaz(V.acik ? 'Her takıma 1-10 arası puan ver. Puanın anında kaydedilir, oylama kapanana kadar değiştirebilirsin. Puanını kimse göremez.' : 'Oylama şu an kapalı.');
+    const liste = $('liste');
+    liste.textContent = '';
+    for (const t of V.takimlar) {
+      const kart = document.createElement('article');
+      kart.className = 'kart' + (V.oylarim[t.id] ? ' tamam' : '');
+      const h = document.createElement('h2'); h.textContent = t.ad; kart.append(h);
+      if (t.proje) { const p = document.createElement('p'); p.textContent = t.proje; kart.append(p); }
+      if (t.site) { const a = document.createElement('a'); a.href = t.site; a.target = '_blank'; a.rel = 'noopener noreferrer'; a.textContent = 'Siteyi aç ↗'; kart.append(a); }
+      const puanlar = document.createElement('div'); puanlar.className = 'puanlar';
+      for (let p = 1; p <= 10; p++) {
+        const b = document.createElement('button');
+        b.textContent = p; b.disabled = !V.acik; b.setAttribute('aria-pressed', V.oylarim[t.id] === p);
+        b.addEventListener('click', () => oyla(t.id, p));
+        puanlar.append(b);
+      }
+      kart.append(puanlar); liste.append(kart);
+    }
+    const bitti = V.takimlar.filter((t) => V.oylarim[t.id]).length;
+    $('durum').hidden = !V.takimlar.length; $('durum').textContent = `${bitti} / ${V.takimlar.length} takım puanlandı`;
+  }
+  async function oyla(takim, puan) {
+    const eski = V.oylarim[takim];
+    V.oylarim[takim] = puan; ciz();
+    try { await post('/api/juri/oy', { takim, puan }); }
+    catch (e) { V.oylarim[takim] = eski; ciz(); yaz(e.message, true); }
+  }
+  async function yukle() {
+    try { V = await post('/api/juri/oku', {}); ciz(); }
+    catch (e) { yaz(e.message, true); }
+  }
+  if (k) { yukle(); setInterval(() => { if (!document.hidden) yukle(); }, 30000); } else yaz('Bu sayfa jüri linkiyle açılır.', true);
+</script>
+</body>
+</html>

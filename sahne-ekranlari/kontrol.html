@@ -1,0 +1,398 @@
+<!doctype html>
+<html lang="tr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Sahne Kontrol</title>
+<link rel="stylesheet" href="fonts/fonts-gece.css">
+<style>
+  :root {
+    --bg: #000c1c; --panel: #04162f; --panel-edge: #1d3557; --fg: #fbf6ee; --fg-soft: #cdd3df; --fg-mute: #8f9ab0;
+    --gold: #d9a85b; --gold-glow: rgba(217, 168, 91, 0.28); --clay: #ff7f66; --slate: #4cd394; --deny: #ff6060; --taslak: #6cc6e6;
+    --spectrum: linear-gradient(100deg, #fbeccd 0%, #f0c987 35%, #d9a85b 65%, #e0763d 100%);
+  }
+  * { box-sizing: border-box; }
+  body { margin: 0; background: radial-gradient(120% 80% at 50% -20%, #0a2547, transparent 60%) fixed, var(--bg); color: var(--fg); font: 15px/1.45 'Geist', system-ui, sans-serif; }
+  header { position: sticky; top: 0; z-index: 5; display: flex; gap: 12px; align-items: center; padding: 10px 20px; background: rgba(0, 12, 28, 0.94); backdrop-filter: blur(8px); border-bottom: 1px solid var(--panel-edge); }
+  header .logo { height: 34px; width: auto; display: block; }
+  header h1 { font-size: 17px; color: var(--gold); margin: 0; font-weight: 650; }
+  header .bosluk { flex: 1; }
+  main { display: grid; grid-template-columns: 210px minmax(0, 1fr) minmax(380px, 560px); gap: 16px; padding: 16px 20px 40px; align-items: start; }
+  @media (max-width: 1200px) { main { grid-template-columns: 180px minmax(0, 1fr); } .sag { grid-column: 1 / -1; position: static !important; } }
+  section { background: var(--panel); border: 1px solid var(--panel-edge); border-radius: 16px; padding: 16px; }
+  section + section { margin-top: 16px; }
+  section h2 { margin: 0 0 12px; font: 600 12px 'Geist Mono', monospace; letter-spacing: 0.14em; text-transform: uppercase; color: var(--fg-mute); display: flex; gap: 8px; align-items: center; }
+  section h2 .etiket { margin-left: auto; font-size: 10px; padding: 2px 8px; border-radius: 999px; border: 1px solid currentColor; }
+  .etiket.anlik { color: var(--slate); } .etiket.tsl { color: var(--taslak); }
+  button { font: inherit; color: var(--fg); background: #0b2142; border: 1px solid var(--panel-edge); border-radius: 10px; padding: 8px 14px; cursor: pointer; }
+  button:hover { border-color: var(--gold); }
+  button:disabled { opacity: .45; cursor: default; }
+  button.ana { background: var(--gold); color: #1a1206; border-color: var(--gold); font-weight: 600; }
+  button.tehlike:hover { border-color: var(--deny); color: var(--deny); }
+  input, select { font: inherit; color: var(--fg); background: #021028; border: 1px solid var(--panel-edge); border-radius: 8px; padding: 7px 10px; width: 100%; min-width: 0; }
+  input[type=checkbox], input[type=range] { width: auto; accent-color: var(--gold); }
+  label { display: grid; gap: 4px; color: var(--fg-soft); font-size: 13px; }
+  .satir { display: flex; gap: 8px; align-items: end; flex-wrap: wrap; }
+  .satir > label { flex: 1; min-width: 140px; }
+  .izgara { display: grid; gap: 10px; }
+  .not { color: var(--fg-mute); font-size: 13px; }
+  .hata { color: var(--clay); }
+  label.kutu { display: flex; flex-direction: row; align-items: center; gap: 6px; flex: 0 0 auto; min-width: 0; }
+
+  /* sol: sahne listesi */
+  .liste { position: sticky; top: 70px; display: grid; gap: 6px; }
+  .liste button { display: flex; align-items: center; gap: 8px; text-align: left; padding: 11px 12px; font-weight: 600; flex-wrap: wrap; }
+  .liste button kbd { font: 11px 'Geist Mono', monospace; color: var(--fg-mute); width: 14px; }
+  .liste button span { flex: 1; }
+  .liste button i { font: 600 9px 'Geist Mono', monospace; font-style: normal; letter-spacing: .08em; padding: 2px 6px; border-radius: 999px; display: none; }
+  .liste button .r-canli { background: var(--deny); color: #fff; }
+  .liste button .r-taslak { border: 1px solid var(--taslak); color: var(--taslak); }
+  .liste button.canli .r-canli, .liste button.taslak .r-taslak { display: inline-block; }
+  .liste button.secili { outline: 2px solid var(--gold); background: rgba(217, 168, 91, .12); }
+  .liste hr { border: 0; border-top: 1px solid var(--panel-edge); margin: 6px 0; }
+  .liste .not { font-size: 12px; padding: 0 4px; }
+
+  /* orta: ayarlar */
+  [data-ayar] { display: none; }
+  [data-ayar].acik { display: block; }
+  .anahtarlar { display: grid; gap: 10px; margin-bottom: 16px; }
+  .anahtarlar .grup { display: grid; grid-template-columns: 130px minmax(0, 1fr); gap: 8px; align-items: start; }
+  .anahtarlar .cipler { display: flex; gap: 8px; flex-wrap: wrap; }
+  .anahtarlar .grup-ad { padding-top: 10px; font: 600 11px 'Geist Mono', monospace; letter-spacing: .12em; text-transform: uppercase; color: var(--fg-mute); }
+  .anahtar { display: flex; align-items: center; gap: 8px; padding: 8px 12px; border-radius: 10px; background: rgba(217, 168, 91, .12); border: 1px solid var(--gold); color: var(--fg); font-size: 14px; cursor: pointer; }
+  .anahtar.kapali { color: var(--fg-mute); background: #021028; border-color: var(--panel-edge); text-decoration: line-through; text-decoration-color: rgba(255,255,255,.25); }
+  .anahtar.kilitli { opacity: .5; }
+  .konusmaci { display: grid; grid-template-columns: 1.2fr 1.2fr 1.4fr auto auto; gap: 6px; align-items: center; padding: 8px; border-radius: 10px; border: 1px solid var(--panel-edge); }
+  .konusmaci .yuvalar { grid-column: 1 / -1; display: flex; gap: 8px; flex-wrap: wrap; }
+  .yuva { display: flex; align-items: center; gap: 8px; padding: 5px 8px 5px 5px; border-radius: 10px; border: 1px dashed var(--panel-edge); background: #021028; cursor: pointer; font-size: 13px; color: var(--fg-soft); min-width: 150px; }
+  .yuva:hover, .yuva.ustunde { border-color: var(--gold); color: var(--fg); }
+  .yuva .kucuk { width: 44px; height: 44px; border-radius: 8px; background: #0b2142 center / cover no-repeat; display: grid; place-items: center; color: var(--fg-mute); font-size: 20px; flex: none; }
+  .yuva[data-tur="foto"] .kucuk { border-radius: 50%; }
+  .yuva[data-tur="logo"] .kucuk { background-size: contain; }
+  .yuva button { padding: 2px 8px; font-size: 12px; margin-left: auto; }
+  .yuva.yukleniyor { opacity: .5; }
+  #t-modlar button.acik { background: var(--gold); color: #1a1206; border-color: var(--gold); font-weight: 600; }
+  .konusmaci.takim { grid-template-columns: 1fr 1fr .6fr auto auto; }
+  .konusmaci.takim .genis { grid-column: 1 / -1; display: grid; grid-template-columns: 1fr 1fr; gap: 6px; }
+  .konusmaci.aktif { background: rgba(108, 198, 230, 0.10); outline: 1px solid var(--taslak); }
+  .sayac { font: 600 34px 'Geist Mono', monospace; font-variant-numeric: tabular-nums; }
+  .sayac.asti { color: var(--deny); }
+  .calan { padding: 12px; border-radius: 10px; background: #021028; border: 1px solid var(--panel-edge); }
+  .calan b { display: block; font-size: 17px; overflow-wrap: anywhere; }
+  ol.istekler { margin: 0; padding: 0; list-style: none; display: grid; grid-template-columns: minmax(0, 1fr); gap: 6px; }
+  ol.istekler li { min-width: 0; display: flex; gap: 8px; align-items: center; padding: 6px 8px; border-radius: 8px; background: #021028; }
+  ol.istekler li > span { flex: 1; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  ol.istekler li button { padding: 4px 9px; }
+
+  /* sağ: yayın */
+  .sag { position: sticky; top: 70px; display: grid; gap: 12px; }
+  .yayin { display: grid; gap: 10px; }
+  .yayin .durum { font-size: 13px; color: var(--fg-mute); }
+  .yayin .durum.var { color: var(--taslak); font-weight: 600; }
+  #yayinla { padding: 14px; font-size: 17px; }
+  #yayinla.bekliyor { animation: nabiz 1.6s ease-in-out infinite; }
+  @keyframes nabiz { 50% { box-shadow: 0 0 0 6px rgba(217, 168, 91, .3); } }
+  .ekran-kutu h3 { margin: 0 0 6px; font: 600 11px 'Geist Mono', monospace; letter-spacing: .12em; text-transform: uppercase; display: flex; gap: 8px; align-items: center; }
+  .ekran-kutu h3 button { margin-left: auto; padding: 2px 8px; font-size: 11px; }
+  .onizleme { position: relative; aspect-ratio: 16 / 9; border-radius: 10px; overflow: hidden; border: 2px solid var(--panel-edge); background: #000; }
+  .onizleme.t { border-color: var(--taslak); } .onizleme.c { border-color: var(--deny); }
+  .onizleme iframe { position: absolute; inset: 0; width: 100%; height: 100%; border: 0; pointer-events: none; }
+
+  #sv h3 { margin: 0 0 8px; font-size: 14px; font-weight: 600; color: var(--fg-soft); display: flex; gap: 8px; align-items: center; }
+  #sv h3 button { padding: 3px 10px; font-size: 12px; }
+  .sv-ikili { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: 16px; }
+  @media (max-width: 1000px) { .sv-ikili { grid-template-columns: 1fr; } }
+  .sv-sarkilar li { flex-wrap: wrap; }
+  .sv-kapak, .istek-kapak { width: 40px; height: 40px; border-radius: 6px; object-fit: cover; flex: none; }
+  .sv-sarkilar li a { flex: none; }
+  .sv-sarkilar li .sv-link { flex: 1 1 180px; width: auto; padding: 4px 8px; }
+  .sv-kareler { display: grid; grid-template-columns: repeat(auto-fill, minmax(130px, 1fr)); gap: 8px; }
+  .sv-kareler figure { margin: 0; padding: 6px; border-radius: 10px; background: #021028; border: 1px solid var(--panel-edge); display: grid; gap: 4px; }
+  .sv-kareler img, .sv-kareler video { width: 100%; aspect-ratio: 1; object-fit: cover; border-radius: 6px; background: #0b2142; }
+  .sv-kareler figcaption { font-size: 12px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  .sv-kareler .satir button { flex: 1; padding: 4px 6px; font-size: 12px; }
+  /* müzik listeleri */
+  .m-sekmeler { display: flex; gap: 6px; flex-wrap: wrap; }
+  .m-sekmeler button { display: flex; align-items: center; gap: 8px; padding: 7px 12px; }
+  .m-sekmeler button.bakilan { outline: 2px solid var(--gold); background: rgba(217, 168, 91, .12); }
+  .m-sekmeler button small { color: var(--fg-mute); font: 11px 'Geist Mono', monospace; }
+  .m-sekmeler button i { font: 600 9px 'Geist Mono', monospace; font-style: normal; letter-spacing: .08em; padding: 2px 6px; border-radius: 999px; background: var(--deny); color: #fff; }
+  .m-sekmeler button.surukle-ustu { outline: 2px dashed var(--gold); }
+  .m-ayar > label:first-child { flex: 0 1 220px; }
+  .m-ekle { display: flex; gap: 8px; align-items: stretch; }
+  .m-ekle textarea { flex: 1; font: inherit; color: var(--fg); background: #021028; border: 1px solid var(--panel-edge); border-radius: 8px; padding: 8px 10px; resize: vertical; min-height: 44px; }
+  #m-onizle:empty { display: none; }
+  #m-onizle .kart { display: flex; gap: 10px; align-items: center; padding: 8px; border-radius: 10px; background: #021028; border: 1px solid var(--gold); color: var(--fg); }
+  #m-onizle .kart img { width: 56px; height: 56px; border-radius: 8px; object-fit: cover; }
+  #m-onizle .kart > * { min-width: 0; } #m-onizle .kart b { display: block; font-size: 15px; overflow-wrap: anywhere; } #m-onizle .hata-satir { color: var(--clay); }
+  /* minmax(0,1fr): uzun şarkı adı satırı genişletmesin, adı … ile kısalsın, düğmeler hep görünsün */
+  ol.sarkilar { margin: 0; padding: 0; list-style: none; display: grid; grid-template-columns: minmax(0, 1fr); gap: 4px; max-height: 520px; overflow-y: auto; overflow-x: hidden; }
+  ol.sarkilar li { min-width: 0; display: flex; gap: 8px; align-items: center; padding: 5px 8px; border-radius: 8px; background: #021028; border: 1px solid transparent; cursor: grab; }
+  ol.sarkilar li > span { flex: 1; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  ol.sarkilar li .no { flex: none; width: 26px; color: var(--fg-mute); font: 12px 'Geist Mono', monospace; }
+  ol.sarkilar li img { width: 36px; height: 36px; border-radius: 6px; object-fit: cover; flex: none; background: #0b2142; }
+  ol.sarkilar li button { padding: 3px 9px; font-size: 13px; flex: none; }
+  ol.sarkilar li.calindi { opacity: .45; }
+  ol.sarkilar li.calan { border-color: var(--gold); background: rgba(217, 168, 91, .14); }
+  ol.sarkilar li.calan .no::before { content: '▶'; color: var(--gold); }
+  ol.sarkilar li.calan .no span { display: none; }
+  ol.sarkilar li.ust { box-shadow: 0 -3px 0 var(--gold); } ol.sarkilar li.alt { box-shadow: 0 3px 0 var(--gold); }
+  ol.sarkilar li.tasiniyor { opacity: .3; }
+  ol.sarkilar.bos-hedef { outline: 2px dashed var(--gold); min-height: 44px; }
+  #istekler li { cursor: grab; }
+  dialog#qr-pencere { background: var(--panel); color: var(--fg); border: 1.5px solid var(--gold); border-radius: 16px; padding: 22px; text-align: center; max-width: 360px; }
+  #panik { background: #8f1d14; border-color: #e0685a; color: #fff; font-weight: 700; letter-spacing: .08em; }
+  #panik kbd { font: 600 11px 'Geist Mono', monospace; padding: 1px 6px; border-radius: 4px; border: 1px solid rgba(255,255,255,.5); margin-left: 6px; }
+  #panik.acik { background: #e0685a; animation: panik-yan 1s steps(2) infinite; }
+  @keyframes panik-yan { 50% { background: #8f1d14; } }
+  #ses-kes { background: #6b4a0e; border-color: #e0a23a; color: #fff; font-weight: 700; letter-spacing: .08em; }
+  #ses-kes kbd { font: 600 11px 'Geist Mono', monospace; padding: 1px 6px; border-radius: 4px; border: 1px solid rgba(255,255,255,.5); margin-left: 6px; }
+  #ses-kes.acik { background: #e0a23a; color: #1a1205; animation: ses-yan 1s steps(2) infinite; }
+  @keyframes ses-yan { 50% { background: #6b4a0e; color: #fff; } }
+  body.panik-acik header { box-shadow: inset 0 -3px 0 #e0685a; }
+  dialog#kirp-pencere { background: var(--panel); color: var(--fg); border: 1.5px solid var(--gold); border-radius: 16px; padding: 22px; text-align: center; width: 380px; }
+  dialog#kirp-pencere::backdrop { background: rgba(0, 8, 20, .7); }
+  .kirp-daire { position: relative; width: 300px; height: 300px; margin: 14px auto; border-radius: 50%; overflow: hidden; border: 4px solid var(--gold); background: #0b2142; cursor: grab; touch-action: none; }
+  .kirp-daire.logo { background: #fbf7ee; }
+  .kirp-daire.tutuluyor { cursor: grabbing; }
+  .kirp-daire img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; pointer-events: none; user-select: none; }
+  .kirp-daire.logo img { object-fit: contain; }
+  /* arka görsel: ekran oranında dikdörtgen, ekrandaki gibi sağa yaslı ve arkasında bulanık dolgu */
+  .kirp-daire.arka { width: 336px; height: 189px; border-radius: 8px; }
+  .kirp-daire.arka img { object-fit: contain; object-position: 100% 50%; }
+  .kirp-daire #kirp-bulanik { display: none; inset: -20px; width: calc(100% + 40px); height: calc(100% + 40px); object-fit: cover; filter: blur(14px) brightness(.45); transform: none; }
+  .kirp-daire.arka #kirp-bulanik { display: block; }
+  #kirp-pencere label { display: flex; align-items: center; gap: 10px; font-size: 13px; color: var(--fg-soft); }
+  #kirp-pencere input[type=range] { flex: 1; accent-color: var(--gold); }
+  #kirp-pencere .dugmeler { display: flex; gap: 8px; justify-content: center; margin-top: 12px; }
+  dialog#qr-pencere::backdrop { background: rgba(0, 8, 20, .7); }
+  #qr-pencere .qr-svg { background: #fff; padding: 12px; border-radius: 12px; width: 260px; margin: 12px auto; }
+  #qr-pencere .qr-svg svg { display: block; width: 100%; height: auto; }
+</style>
+</head>
+<body>
+<header>
+  <img class="logo" src="assets/giris/logo-gakcoding-acik.webp" alt="GakCoding"><h1>Sahne kontrol</h1>
+  <span class="not" id="baglanti">Ekran bekleniyor…</span>
+  <span class="bosluk"></span>
+  <button id="panik" title="Ses ve ekran anında kesilir, salonda poster kalır. Kısayol: B ya da nokta (tıklayıcının siyah ekran düğmesi)">PANİK <kbd>B</kbd></button>
+  <button id="ses-kes" title="Yalnız müzik anında susar, ekran değişmez. Tekrar basınca ses yavaşça geri gelir. Kısayol: M">SESİ KES <kbd>M</kbd></button>
+  <button id="ekran-ac">Salon ekranını aç</button>
+  <button id="sunucu-ac">Sunucu görünümü</button>
+</header>
+
+<main>
+  <!-- ======================================== sol: ekranlar -->
+  <nav class="liste" id="liste"></nav>
+
+  <!-- ======================================== orta: seçili ekranın ayarları + canlı işler -->
+  <div>
+    <section data-ayar="bekleme">
+      <h2>Bekleme ekranı <span class="etiket tsl">taslak</span></h2>
+      <div class="anahtarlar" data-anahtar="bekleme"></div>
+      <p class="not">Kapattığın öğe taslağa yazılır, Yayınla ile salondan kalkar. Müzik kapalı öğelerden etkilenmez, çalmaya devam eder.</p>
+    </section>
+
+    <section data-ayar="konusmaci">
+      <h2>Konuşmacı ekranı <span class="etiket tsl">taslak</span></h2>
+      <div class="anahtarlar" data-anahtar="konusmaci"></div>
+      <div class="satir" style="margin-bottom:12px; align-items:center">
+        <span class="not" style="flex:1">Konuşmacı ekranı arka görseli (isteğe bağlı; yoksa Harput gecesi). Konuşmacıya özel arka görsel bunun önüne geçer.</span>
+        <div class="yuva" data-yuva="genel-arka"></div>
+      </div>
+      <div class="izgara" id="konusmacilar"></div>
+      <div class="satir" style="margin-top:10px"><button id="k-ekle">+ Konuşmacı ekle</button><span class="not">"Seç" taslakta konuşmacıyı değiştirir. Görseller isteğe bağlı: kutuya tıkla ya da resmi üstüne sürükle.</span></div>
+      <input type="file" id="dosya-sec" accept="image/*" hidden>
+    </section>
+
+    <section data-ayar="sunum">
+      <h2>Sunum ekranı <span class="etiket tsl">taslak</span></h2>
+      <div class="anahtarlar" data-anahtar="sunum"></div>
+      <h2 style="margin-top:6px">Sunum kumandası <span class="etiket anlik">anında</span></h2>
+      <div class="satir">
+        <button id="d-geri" style="flex:1;padding:16px">◀ Önceki</button>
+        <button class="ana" id="d-ileri" style="flex:2;padding:16px">Sonraki slayt ▶</button>
+        <button id="d-bas">Başa dön</button>
+      </div>
+      <p class="not" id="d-not">Tıklayıcı da çalışır: panel ya da sunucu görünümü seçiliyken ← → / PageUp PageDown / ses tuşları. Telefondan: KDE Connect → Sunum kumandası (ses tuşlarıyla, ekran kilitliyken de).</p>
+    </section>
+
+    <section data-ayar="kodlama">
+      <h2>Kodlama ekranı <span class="etiket tsl">taslak</span></h2>
+      <div class="anahtarlar" data-anahtar="kodlama"></div>
+      <div class="satir">
+        <label style="flex:0 0 200px">Kodlama bitiş saati<input type="time" id="kodlama-bitis"></label>
+        <label style="flex:0 0 200px">Toplam süre (saat)<input type="number" min="0.5" max="48" step="0.5" id="kodlama-saat"></label>
+      </div>
+      <p class="not">Kalan süre barı toplam süreye göre dolar. Bitiş saatini sonradan uzatsan da bar bu sayıyı esas alır; toplamı aşan süre barı dolu tutar.</p>
+    </section>
+
+    <section data-ayar="galeri">
+      <h2>Galeri ekranı <span class="etiket tsl">taslak</span></h2>
+      <div class="anahtarlar" data-anahtar="galeri"></div>
+      <p class="not">Fotoğraflar aşağıdaki "Telefondan gelenler"den onaylanır, galeri kaynağı Temel ayarlarda.</p>
+    </section>
+
+    <section data-ayar="mola">
+      <h2>Mola ekranı <span class="etiket tsl">taslak</span></h2>
+      <div class="anahtarlar" data-anahtar="mola"></div>
+      <div class="satir">
+        <label style="flex:0 0 110px">Süre (dk)<input type="number" min="1" max="120" id="mola-dk"></label>
+        <button id="mola-yeniden">Süreyi baştan başlat</button>
+        <span class="not" id="mola-durum"></span>
+      </div>
+      <p class="not">Mola yayınlandığı anda sayaç başlar.</p>
+    </section>
+
+    <section data-ayar="duyuru">
+      <h2>Duyuru ekranı <span class="etiket tsl">taslak</span></h2>
+      <div class="anahtarlar" data-anahtar="duyuru"></div>
+      <div class="izgara">
+        <label>Başlık<input data-alan="duyuru.baslik"></label>
+        <label>Alt yazı<input data-alan="duyuru.alt"></label>
+      </div>
+    </section>
+
+    <section data-ayar="takim">
+      <h2>Salondaki takım <span class="etiket anlik">anında</span></h2>
+      <p class="not" id="t-durum" style="margin-top:-4px"></p>
+      <div class="satir" id="t-modlar">
+        <button data-mod="kart">Kart</button>
+        <button data-mod="site">Canlı site</button>
+        <button data-mod="video">Video</button>
+        <button data-mod="yt">YouTube</button>
+        <button id="t-pencere" title="Siteyi ayrı pencerede aç; pencereyi projeksiyona sürükle">Siteyi pencerede aç</button>
+      </div>
+      <div class="satir" style="margin-top:8px"><button data-video="oynat">▶ Oynat</button><button data-video="dur">⏸ Durdur</button><button data-video="bas">⏮ Başa al</button></div>
+      <p class="not" id="t-mod-not">Canlı site salon ekranında açılır; demoyu salon ekranı penceresinde fareyle kullanırsın. Site gömülmeye izin vermiyorsa ayrı pencerede açılır.</p>
+      <h2 style="margin-top:18px">Takımlar <span class="etiket tsl">taslak</span></h2>
+      <div class="anahtarlar" data-anahtar="takim"></div>
+      <div class="izgara" id="takimlar"></div>
+      <div class="satir" style="margin-top:10px"><button id="t-ekle">+ Takım ekle</button><button id="t-cms">CMS'ten al</button><span class="not" id="t-not">"Seç" takımı taslağa koyar, Yayınla ile salona çıkar. Fotoğraf ya da videoyu kutuya sürükle.</span></div>
+      <input type="file" id="t-dosya" hidden>
+      <h2 style="margin-top:18px">Jüri oylaması <span class="etiket anlik">anında</span></h2>
+      <div class="izgara">
+        <span class="not" id="j-durum">Önce "Telefondan gelenler" bölümünden sunucuya bağlan.</span>
+        <div class="satir">
+          <label class="kutu"><input type="checkbox" id="j-acik"> Oylama açık</label>
+          <button id="j-gonder">Takımları jüriye gönder</button>
+        </div>
+        <div class="satir"><label>Jüri üyesi<input id="j-ad" placeholder="Ad Soyad"></label><button class="ana" id="j-ekle">Jüri ekle</button></div>
+        <ol class="istekler" id="j-uyeler"></ol>
+        <div class="satir"><button id="j-goster">Sıralamayı göster</button><button class="tehlike" id="j-sifirla">Tüm oyları sil</button></div>
+        <ol class="istekler" id="j-sira" hidden></ol>
+        <span class="not">Puanları kimse tek tek göremez, burada yalnız ortalama görünür. Bu panel salona yansıtılıyorsa sıralamayı açma.</span>
+      </div>
+    </section>
+
+    <section data-ayar="temel">
+      <h2>Temel ayarlar · tüm ekranlar <span class="etiket tsl">taslak</span></h2>
+      <div class="anahtarlar"><label class="anahtar" id="kutu-genel"><input type="checkbox" id="sarki-kutusu"> QR ve "şimdi çalıyor" kutuları (tüm ekranlarda)</label></div>
+      <p class="not" style="margin-top:-6px">Kapalıyken hiçbir ekranda görünmez; açıkken her ekranın kendi kutucuğu geçerli. Müzik her durumda çalmaya devam eder.</p>
+      <div class="izgara">
+        <label>Şarkı iste QR linki<input data-alan="qr.sarki" placeholder="https://..."></label>
+        <label>Fotoğraf gönder QR linki<input data-alan="qr.foto" placeholder="https://..."></label>
+        <label>Galeri kaynağı (boşsa yerel galeri/ klasörü)<input data-alan="galeri.api" placeholder="https://.../api/galeri"></label>
+        <span class="not">Sahne sunucusuna "Bağlan" deyince bu üçü otomatik dolar.</span>
+      </div>
+    </section>
+
+    <!-- ---------- canlı işler: her zaman görünür, anında uygulanır -->
+    <section id="muzik">
+      <h2>Müzik <span class="etiket anlik">anında</span></h2>
+      <div class="izgara">
+        <div class="calan"><span class="not" id="m-mod">—</span><b id="m-calan">Ekran açık değil</b><span class="not hata" id="m-hata"></span></div>
+        <div class="satir">
+          <button class="ana" id="m-oynat">Çal</button>
+          <button id="m-gec">Geç ⏭</button>
+          <label style="flex:1">Ses <input type="range" min="0" max="100" id="m-ses"></label>
+        </div>
+        <div class="m-sekmeler" id="m-sekmeler"></div>
+        <div class="satir m-ayar">
+          <label>Liste adı<input id="m-ad"></label>
+          <label class="kutu"><input type="checkbox" id="m-karisik"> Liste bitince karıştırıp başa dön</label>
+          <button id="m-karistir">Sıradakileri karıştır</button>
+          <button class="tehlike" id="m-liste-sil">Listeyi sil</button>
+        </div>
+        <div class="m-ekle">
+          <textarea id="m-girdi" rows="2" placeholder="YouTube ya da Spotify linki, oynatma listesi / albüm linki veya &quot;Sanatçı – Şarkı&quot;. Toplu eklemek için alt alta yapıştır."></textarea>
+          <button class="ana" id="m-ekle">Ekle</button>
+        </div>
+        <div id="m-onizle" class="not"></div>
+        <ol class="sarkilar" id="m-sarkilar"></ol>
+        <span class="not">Sürükleyip bırakarak sırala. Soluk olanlar çalındı; çalanın ilerisine sürüklersen yeniden çalar. Hangi ekranda müziğin kısılacağı her ekranın kendi ayarında.</span>
+      </div>
+    </section>
+
+    <section>
+      <h2>Gelen istekler <span id="i-sayi"></span> <span class="etiket anlik">anında</span></h2>
+      <p class="not" style="margin-top:-4px">Telefondan onaylanan istekler burada bekler. Müzik listesine sürükle ya da "Sıradaki yap"a bas; sırası gelince çalar.</p>
+      <ol class="sarkilar" id="istekler"></ol>
+    </section>
+
+    <section id="sv">
+      <h2>Telefondan gelenler (sahne sunucusu) <span class="etiket anlik">anında</span></h2>
+      <div class="izgara">
+        <div class="satir">
+          <label>Sunucu adresi<input id="sv-adres" placeholder="https://sahne.example.com"></label>
+          <label style="flex:0 0 220px">Yönetici şifresi<input id="sv-sifre" type="password" autocomplete="off"></label>
+          <button class="ana" id="sv-baglan">Bağlan</button>
+        </div>
+        <span class="not" id="sv-durum">Bağlanınca QR'lar ve galeri otomatik bu sunucuya ayarlanır.</span>
+        <div class="satir">
+          <label class="kutu"><input type="checkbox" id="sv-sarkiAcik"> Şarkı istekleri açık</label>
+          <label class="kutu"><input type="checkbox" id="sv-fotoAcik"> Fotoğraf gönderimi açık</label>
+          <label class="kutu"><input type="checkbox" id="sv-videoAcik"> Video gönderimi açık</label>
+          <label class="kutu"><input type="checkbox" id="sv-otoSarki"> Linkli şarkıları onaysız "Gelen istekler"e al</label>
+          <label class="kutu"><input type="checkbox" id="sv-otoFoto"> Fotoğrafları onaysız galeriye koy</label>
+        </div>
+        <div class="sv-ikili">
+          <div>
+            <h3>Şarkı istekleri <span id="sv-sarki-sayi"></span></h3>
+            <ol class="istekler sv-sarkilar" id="sv-sarkilar"><li class="not">Bağlı değil</li></ol>
+          </div>
+          <div>
+            <h3>Bekleyen foto / video <span id="sv-foto-sayi"></span> <button id="sv-hepsi" hidden>Hepsini onayla</button></h3>
+            <div class="sv-kareler" id="sv-fotolar"></div>
+            <h3 style="margin-top:14px">Galeride (son 24)</h3>
+            <div class="sv-kareler" id="sv-galeri"></div>
+          </div>
+        </div>
+        <div class="satir"><button id="sv-engel-kaldir" title="Engellenen tüm telefonlar yeniden gönderebilir">Engelleri kaldır</button><button class="tehlike" id="sv-temizle">Etkinlik bitti: tüm fotoğraf ve istekleri sil</button></div>
+      </div>
+    </section>
+  </div>
+
+  <!-- ======================================== sağ: taslak / canlı / yayınla -->
+  <aside class="sag">
+    <section class="yayin">
+      <div class="durum" id="degisiklik">Salon taslakla aynı</div>
+      <div class="satir">
+        <button id="geri-al" style="flex:1">Taslağı geri al</button>
+        <button class="ana" id="yayinla" style="flex:2">Yayınla ▶ <span class="not" style="color:inherit;opacity:.7">Ctrl+Enter</span></button>
+      </div>
+    </section>
+    <div class="ekran-kutu">
+      <h3 style="color:var(--taslak)">Taslak · yayınlanınca böyle olacak <button id="oniz-yenile">Yenile ↻</button></h3>
+      <div class="onizleme t"><iframe id="oniz-taslak" src="ekran.html?onizleme&taslak&v=41" title="Taslak"></iframe></div>
+    </div>
+    <div class="ekran-kutu">
+      <h3 style="color:var(--deny)">● Salonda şu an</h3>
+      <div class="onizleme c"><iframe id="oniz-canli" src="ekran.html?onizleme&v=41" title="Salonda"></iframe></div>
+    </div>
+  </aside>
+</main>
+
+<dialog id="kirp-pencere"><b id="kirp-baslik"></b>
+  <div class="kirp-daire" id="kirp-daire"><img id="kirp-bulanik" alt=""><img id="kirp-resim" alt=""></div>
+  <label>Yakınlaştır <input type="range" id="kirp-z" min="0.4" max="4" step="0.01"></label>
+  <p class="not">Resmi sürükleyerek kaydır, fare tekerleğiyle yakınlaştır. Değişiklik taslağa yazılır, Yayınla ile salona gider.</p>
+  <div class="dugmeler"><button id="kirp-sifirla">Sıfırla</button><button id="kirp-kapat" class="ana">Tamam</button></div></dialog>
+<dialog id="qr-pencere"><b id="qr-baslik"></b><div class="qr-svg" id="qr-svg"></div><p class="not">Telefonla okut, kulaklıkla ya da kulağına dayayıp dinle.</p><button id="qr-kapat" class="ana">Kapat</button></dialog>
+
+<script src="lib/qrcode.js"></script>
+<script type="module" src="kontrol.js?v=29"></script>
+<script type="module" src="sunucu.js?v=12"></script>
+<script type="module" src="juri.js?v=1"></script>
+</body>
+</html>

@@ -1,0 +1,19 @@
+{
+  // GakCoding sahne sunucusu. Yayına alma: ./yayinla.sh (etkinlik için ayrı bir Cloudflare hesabı önerilir)
+  "name": "gak-sahne",
+  "main": "src/index.js",
+  "compatibility_date": "2026-10-01",
+  // kendi alan adın için: "routes": [{ "pattern": "sahne.example.com", "custom_domain": true }],
+  "assets": { "directory": "./public", "binding": "ASSETS", "run_worker_first": ["/api/*", "/f/*"] },
+  "d1_databases": [
+    // yayinla.sh database_id'yi kendisi doldurur; yerelde (wrangler dev) bu değer kullanılmaz
+    { "binding": "DB", "database_name": "gak-sahne", "database_id": "00000000-0000-0000-0000-000000000000" }
+  ],
+  // kısa videolar (fotoğraflar D1'de)
+  "r2_buckets": [{ "binding": "MEDYA", "bucket_name": "gak-sahne-medya" }],
+  "vars": {
+    // Turnstile isteğe bağlı: site anahtarı buraya, gizli anahtar `wrangler secret put TURNSTILE_SECRET` ile
+    "TURNSTILE_SITE": ""
+  }
+  // ADMIN_SIFRE: `wrangler secret put ADMIN_SIFRE` (yerelde .dev.vars)
+}

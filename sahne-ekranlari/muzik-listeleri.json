@@ -1,0 +1,27 @@
+{
+ "zaman": 0,
+ "aktif": "bekleme",
+ "listeler": [
+  {
+   "id": "bekleme",
+   "ad": "Bekleme",
+   "karisik": true,
+   "calanId": "",
+   "sarkilar": []
+  },
+  {
+   "id": "kodlama",
+   "ad": "Kodlama",
+   "karisik": true,
+   "calanId": "",
+   "sarkilar": []
+  },
+  {
+   "id": "odul",
+   "ad": "Ödül",
+   "karisik": false,
+   "calanId": "",
+   "sarkilar": []
+  }
+ ]
+}

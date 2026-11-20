@@ -1,0 +1,1 @@
+Yerel galeri: fotoğrafları buraya koyun (yerel-sunucu.py listeler).

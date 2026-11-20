@@ -1,0 +1,150 @@
+/* Gece teması (koyu, çivit ve mercan vurgulu).
+   Sadece html[data-tema='gece'] iken geçerli. Klasik (sarı) tema için adrese ?tema=klasik ekle.
+   Renk kuralı aynı: --gold artık çivit (ana vurgu), --clay gün batımı mercanı, --slate GitHub yeşili.
+   Bir öğede iki vurgu rengi birlikte olmaz; tayf (gökkuşağı) sadece büyük sayılarda ve ufuk çizgisinde. */
+
+html[data-tema='gece'] {
+  --bg: #09090d;
+  --bg-deep: #050507;
+  --bg-well: #0f0f16;
+  --panel: #13131b;
+  --panel-edge: #2b2b3a;
+
+  --oat: #e9e9f3;
+  --oat-ink: #0a0a0f;
+
+  --ink: #0a0a0f;
+  --fg: #eeeef4;
+  --fg-soft: #b6b6c6;
+  --fg-mute: #7c7c90;
+  --line: rgba(238, 238, 255, 0.1);
+  --line-strong: rgba(238, 238, 255, 0.22);
+
+  --gold: #8f8fff;
+  --gold-bright: #ababff;
+  --gold-glow: rgba(124, 124, 255, 0.28);
+  --clay: #ff7f66;
+  --clay-glow: rgba(255, 127, 102, 0.24);
+  --slate: #4cd394;
+  --slate-glow: rgba(76, 211, 148, 0.22);
+  --allow: #4cd394;
+  --deny: #ff6060;
+
+  --spectrum: linear-gradient(100deg, #8f8fff 0%, #c58bff 30%, #ff7fb0 55%, #ff9f6a 80%, #ffd27a 100%);
+  --glass: linear-gradient(180deg, rgba(255, 255, 255, 0.075), rgba(255, 255, 255, 0.02));
+
+  --font-display: 'Geist', system-ui, sans-serif;
+  --font-body: 'Geist', system-ui, sans-serif;
+  --font-mono: 'Geist Mono', ui-monospace, monospace;
+  --font-accent: 'Instrument Serif', Georgia, serif;
+}
+
+/* ---------- gök: yıldızlar, aydan yayılan gravür halkaları ---------- */
+
+html[data-tema='gece'] .bg-field {
+  opacity: 0.9;
+  background-image:
+    url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='600' height='600'><g fill='%23e8e8ff'><circle cx='143' cy='327' r='0.8' fill-opacity='0.85'/><circle cx='284' cy='349' r='0.6' fill-opacity='0.84'/><circle cx='282' cy='330' r='0.6' fill-opacity='0.90'/><circle cx='282' cy='502' r='1.1' fill-opacity='0.51'/><circle cx='517' cy='139' r='0.6' fill-opacity='0.81'/><circle cx='314' cy='445' r='0.6' fill-opacity='0.35'/><circle cx='574' cy='26' r='0.6' fill-opacity='0.79'/><circle cx='162' cy='357' r='1.1' fill-opacity='0.71'/><circle cx='553' cy='237' r='1.1' fill-opacity='0.88'/><circle cx='80' cy='219' r='0.6' fill-opacity='0.34'/><circle cx='130' cy='579' r='1.1' fill-opacity='0.76'/><circle cx='513' cy='253' r='1.1' fill-opacity='0.62'/><circle cx='320' cy='245' r='0.6' fill-opacity='0.84'/><circle cx='409' cy='557' r='0.8' fill-opacity='0.89'/><circle cx='403' cy='98' r='0.8' fill-opacity='0.88'/><circle cx='543' cy='341' r='0.6' fill-opacity='0.66'/><circle cx='593' cy='160' r='0.6' fill-opacity='0.29'/><circle cx='512' cy='594' r='0.6' fill-opacity='0.47'/><circle cx='40' cy='538' r='0.6' fill-opacity='0.44'/><circle cx='461' cy='524' r='0.6' fill-opacity='0.64'/><circle cx='457' cy='227' r='0.8' fill-opacity='0.61'/><circle cx='553' cy='167' r='0.6' fill-opacity='0.90'/><circle cx='186' cy='46' r='0.6' fill-opacity='0.87'/><circle cx='583' cy='175' r='0.8' fill-opacity='0.35'/><circle cx='25' cy='521' r='0.8' fill-opacity='0.48'/><circle cx='83' cy='517' r='1.1' fill-opacity='0.55'/><circle cx='312' cy='386' r='0.6' fill-opacity='0.65'/><circle cx='564' cy='304' r='1.1' fill-opacity='0.66'/><circle cx='429' cy='562' r='1.1' fill-opacity='0.89'/><circle cx='313' cy='329' r='0.6' fill-opacity='0.76'/><circle cx='592' cy='189' r='1.1' fill-opacity='0.65'/><circle cx='379' cy='36' r='0.8' fill-opacity='0.55'/><circle cx='408' cy='212' r='0.8' fill-opacity='0.73'/><circle cx='13' cy='36' r='0.6' fill-opacity='0.88'/><circle cx='151' cy='274' r='0.8' fill-opacity='0.37'/><circle cx='111' cy='455' r='0.8' fill-opacity='0.45'/><circle cx='226' cy='463' r='0.6' fill-opacity='0.88'/><circle cx='410' cy='79' r='0.6' fill-opacity='0.67'/><circle cx='162' cy='197' r='1.1' fill-opacity='0.67'/><circle cx='58' cy='360' r='0.8' fill-opacity='0.69'/><circle cx='135' cy='486' r='0.6' fill-opacity='0.30'/><circle cx='445' cy='131' r='1.1' fill-opacity='0.43'/><circle cx='472' cy='20' r='0.6' fill-opacity='0.45'/><circle cx='502' cy='345' r='0.8' fill-opacity='0.47'/><circle cx='497' cy='51' r='0.8' fill-opacity='0.63'/><circle cx='253' cy='311' r='0.8' fill-opacity='0.55'/><circle cx='381' cy='174' r='1.1' fill-opacity='0.27'/><circle cx='248' cy='120' r='1.1' fill-opacity='0.86'/><circle cx='528' cy='592' r='1.1' fill-opacity='0.61'/><circle cx='591' cy='430' r='0.6' fill-opacity='0.73'/><circle cx='502' cy='398' r='0.8' fill-opacity='0.60'/><circle cx='534' cy='517' r='0.8' fill-opacity='0.33'/><circle cx='147' cy='21' r='0.6' fill-opacity='0.83'/><circle cx='540' cy='346' r='0.6' fill-opacity='0.56'/><circle cx='72' cy='302' r='0.6' fill-opacity='0.68'/><circle cx='315' cy='248' r='0.6' fill-opacity='0.47'/><circle cx='151' cy='517' r='1.1' fill-opacity='0.78'/><circle cx='37' cy='132' r='0.6' fill-opacity='0.60'/><circle cx='490' cy='103' r='0.8' fill-opacity='0.85'/><circle cx='484' cy='494' r='0.6' fill-opacity='0.57'/><circle cx='343' cy='240' r='0.8' fill-opacity='0.41'/><circle cx='371' cy='312' r='0.6' fill-opacity='0.56'/><circle cx='466' cy='1' r='0.6' fill-opacity='0.75'/><circle cx='28' cy='30' r='1.1' fill-opacity='0.88'/><circle cx='513' cy='52' r='1.1' fill-opacity='0.46'/><circle cx='189' cy='211' r='1.1' fill-opacity='0.63'/><circle cx='217' cy='115' r='0.8' fill-opacity='0.53'/><circle cx='77' cy='2' r='1.1' fill-opacity='0.77'/><circle cx='340' cy='26' r='1.1' fill-opacity='0.64'/><circle cx='470' cy='228' r='0.6' fill-opacity='0.65'/></g></svg>"),
+    repeating-radial-gradient(circle at 88% -12%, rgba(170, 170, 255, 0.07) 0 1px, transparent 1px 13px);
+  background-size: 600px 600px, auto;
+  -webkit-mask-image: radial-gradient(130% 110% at 80% 0%, #000 0%, transparent 75%);
+  mask-image: radial-gradient(130% 110% at 80% 0%, #000 0%, transparent 75%);
+}
+html[data-tema='gece'] .bg-vignette {
+  background-image:
+    radial-gradient(60% 55% at 88% -6%, rgba(124, 124, 255, 0.16), transparent 70%),
+    radial-gradient(80% 40% at 30% 112%, rgba(255, 127, 176, 0.08), transparent 70%);
+}
+/* ufukta ince tayf çizgisi: sitedeki gökkuşağı bantlarının izi */
+html[data-tema='gece'] .deck::after {
+  content: '';
+  position: absolute;
+  left: 0; right: 0; bottom: 0;
+  height: 3px;
+  background: var(--spectrum);
+  opacity: 0.75;
+  z-index: 6;
+  pointer-events: none;
+}
+html[data-tema='gece'] .grain { opacity: 0.05; }
+
+/* ---------- üst şerit ve alt çubuk ---------- */
+
+html[data-tema='gece'] .brand { align-items: center; gap: 12px; }
+html[data-tema='gece'] .brand-owl { display: block; width: 46px; height: auto; filter: drop-shadow(0 0 10px var(--gold-glow)); }
+html[data-tema='gece'] .bm-klasik { display: none; }
+html[data-tema='gece'] .bm-gece { display: inline; }
+html[data-tema='gece'] .brand-mark { font-weight: 650; font-size: 30px; letter-spacing: -0.03em; }
+html[data-tema='gece'] .brand-dot { display: none; }
+html[data-tema='gece'] .masthead::after { background: linear-gradient(90deg, var(--line-strong), transparent 85%); }
+html[data-tema='gece'] .deck[data-layout='opener'] .statusline { background: linear-gradient(to top, rgb(5 5 7 / 0.92) 55%, rgb(5 5 7 / 0)); }
+html[data-tema='gece'] .deck[data-layout='opener'] .masthead { background: linear-gradient(to bottom, rgb(5 5 7 / 0.85) 40%, rgb(5 5 7 / 0)); }
+html[data-tema='gece'] .sl-dot,
+html[data-tema='gece'] .kicker-dot {
+  clip-path: polygon(50% 0, 62% 38%, 100% 50%, 62% 62%, 50% 100%, 38% 62%, 0 50%, 38% 38%);
+  width: 12px; height: 12px;
+}
+html[data-tema='gece'] .sl-prog i { border-radius: 50%; width: 9px; height: 9px; }
+
+/* ---------- yazı ---------- */
+
+html[data-tema='gece'] .title { font-weight: 640; letter-spacing: -0.045em; line-height: 1.0; }
+html[data-tema='gece'] em,
+html[data-tema='gece'] .title em {
+  font-family: var(--font-accent);
+  font-style: italic;
+  font-weight: 400;
+  font-size: 1.08em;
+  letter-spacing: -0.01em;
+  color: var(--gold-bright);
+}
+html[data-tema='gece'] .quote { font-family: var(--font-accent); font-style: italic; font-weight: 400; letter-spacing: -0.01em; line-height: 1.08; }
+html[data-tema='gece'] .quote::before { color: var(--gold); }
+html[data-tema='gece'] .big-num {
+  font-weight: 700;
+  letter-spacing: -0.07em;
+  background: var(--spectrum);
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+  text-shadow: none;
+  filter: drop-shadow(0 0 40px rgba(143, 143, 255, 0.25));
+}
+html[data-tema='gece'] .formula .hl { background: var(--spectrum); -webkit-background-clip: text; background-clip: text; color: transparent; text-shadow: none; }
+
+/* ---------- cam paneller  ---------- */
+
+html[data-tema='gece'] .card,
+html[data-tema='gece'] .tweet,
+html[data-tema='gece'] .compare > div,
+html[data-tema='gece'] .term,
+html[data-tema='gece'] .well {
+  background: var(--glass), rgba(14, 14, 22, 0.62);
+  border-color: rgba(238, 238, 255, 0.14);
+  -webkit-backdrop-filter: blur(18px) saturate(1.3);
+  backdrop-filter: blur(18px) saturate(1.3);
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.14), 0 30px 80px -40px #000;
+}
+html[data-tema='gece'] .card[data-tone='gold'],
+html[data-tema='gece'] .compare .now { border-color: color-mix(in srgb, var(--gold) 55%, transparent); box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.14), 0 0 0 1px var(--gold-glow), 0 30px 80px -40px var(--gold-glow); }
+html[data-tema='gece'] .card[data-tone='clay'] { border-color: color-mix(in srgb, var(--clay) 50%, transparent); }
+html[data-tema='gece'] .card[data-tone='slate'] { border-color: color-mix(in srgb, var(--slate) 45%, transparent); }
+html[data-tema='gece'] .card h3 { font-weight: 640; letter-spacing: -0.035em; }
+html[data-tema='gece'] .tag { border-radius: 999px; font-weight: 500; }
+html[data-tema='gece'] .tweet-av { background: var(--gold); color: var(--ink); font-family: var(--font-body); font-weight: 700; }
+html[data-tema='gece'] .term .in::before { color: var(--gold); }
+html[data-tema='gece'] .level-col { background: repeating-linear-gradient(0deg, transparent 0 22px, rgba(238, 238, 255, 0.07) 22px 24px), var(--glass), var(--panel); }
+html[data-tema='gece'] .level[data-tone='gold'] .level-col { background: repeating-linear-gradient(0deg, transparent 0 22px, var(--gold-glow) 22px 24px), color-mix(in srgb, var(--gold) 18%, var(--panel)); }
+html[data-tema='gece'] .lane > div::before { clip-path: polygon(50% 0, 62% 38%, 100% 50%, 62% 62%, 50% 100%, 38% 62%, 0 50%, 38% 38%); width: 18px; height: 18px; top: -31px; }
+html[data-tema='gece'] .bar-track i { border-radius: 0 6px 6px 0; }
+html[data-tema='gece'] .bar[data-tone='gold'] .bar-track i { background: var(--spectrum); }
+
+/* ---------- görsel yedeği ve kapanış ---------- */
+
+html[data-tema='gece'] .art {
+  background:
+    radial-gradient(40% 50% at 75% 20%, rgba(124, 124, 255, 0.28), transparent 70%),
+    radial-gradient(80% 40% at 50% 110%, rgba(255, 127, 176, 0.14), transparent 70%),
+    var(--bg-well);
+}
+html[data-tema='gece'] .end-arma { display: block; width: 300px; height: auto; opacity: 0.92; margin-bottom: 26px; }

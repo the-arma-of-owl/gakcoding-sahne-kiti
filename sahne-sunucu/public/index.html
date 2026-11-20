@@ -1,0 +1,425 @@
+<!doctype html>
+<html lang="tr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#001937">
+<meta name="referrer" content="no-referrer">
+<title>GakCoding · Sahne</title>
+<link rel="stylesheet" href="fonts/fonts.css">
+<style>
+  /* salon ekranlarıyla aynı tema: gece laciverti, kilim köşeleri, altın/krem */
+  :root {
+    --bg: #001937; --bg-deep: #000c1c; --panel: rgba(4, 16, 38, 0.82); --edge: rgba(217, 168, 91, 0.38); --edge-strong: rgba(217, 168, 91, 0.7);
+    --fg: #fbf6ee; --soft: #cdd3df; --mute: #8f9ab0; --gold: #d9a85b; --gold-bright: #f0c987;
+    --slate: #4cd394; --deny: #ff6060; --clay: #ff7f66;
+    --spectrum: linear-gradient(100deg, #fbeccd 0%, #f0c987 35%, #d9a85b 65%, #e0763d 100%);
+    --glass: linear-gradient(180deg, rgba(255, 255, 255, 0.05), rgba(255, 255, 255, 0));
+    --serif: 'Instrument Serif', Georgia, serif;
+  }
+  * { box-sizing: border-box; margin: 0; }
+  html { -webkit-text-size-adjust: 100%; background: var(--bg-deep); }
+  body { min-height: 100dvh; color: var(--fg); font: 16px/1.45 'Geist', system-ui, sans-serif; background: var(--bg); position: relative; overflow-x: hidden; }
+  /* Harput gecesi zemini, aşağı doğru koyulaşır */
+  body::before { content: ''; position: fixed; inset: 0; z-index: -2; background: url(arka.webp) center top / cover no-repeat; opacity: .55; }
+  body::after { content: ''; position: fixed; inset: 0; z-index: -1; background: linear-gradient(180deg, rgba(0, 25, 55, .35) 0%, rgba(0, 25, 55, .82) 38%, var(--bg-deep) 100%); }
+  .kilim { position: absolute; top: 0; left: 0; width: 100%; height: auto; pointer-events: none; z-index: 0; }
+  main { position: relative; z-index: 1; max-width: 480px; margin: 0 auto; padding: max(28px, env(safe-area-inset-top)) 16px max(32px, env(safe-area-inset-bottom)); }
+  header { text-align: center; margin: 26px 0 22px; }
+  header img { width: min(230px, 62vw); height: auto; filter: drop-shadow(0 6px 18px rgba(0, 0, 0, .55)); }
+  header small { display: block; margin-top: 6px; color: var(--gold-bright); font: 500 12px/1 ui-monospace, 'Geist Mono', monospace; letter-spacing: .18em; text-transform: uppercase; }
+  h1 { font-size: 29px; line-height: 1.1; font-weight: 650; letter-spacing: -0.02em; margin-bottom: 8px; text-align: center; }
+  h1 em { font: italic 400 36px var(--serif); background: var(--spectrum); -webkit-background-clip: text; background-clip: text; color: transparent; padding-right: 3px; }
+  .giris { color: var(--soft); margin-bottom: 20px; text-align: center; }
+
+  .sekme { display: grid; grid-template-columns: 1fr 1fr; gap: 6px; padding: 5px; border-radius: 14px; background: var(--panel); border: 1px solid var(--edge); margin-bottom: 14px; backdrop-filter: blur(8px); }
+  .sekme button { font: inherit; font-weight: 600; color: var(--soft); background: none; border: 0; border-radius: 10px; padding: 11px 8px; cursor: pointer; }
+  .sekme button[aria-selected=true] { background: var(--gold); color: #1a1205; }
+
+  .kart { border-radius: 18px; border: 1px solid var(--edge); background: var(--glass), var(--panel); padding: 18px; backdrop-filter: blur(8px); box-shadow: 0 18px 50px rgba(0, 0, 0, .35); }
+  .kart + .kart { margin-top: 14px; }
+  label { display: grid; gap: 6px; color: var(--soft); font-size: 14px; margin-bottom: 14px; }
+  input[type=text] { font: inherit; font-size: 16px; color: var(--fg); background: rgba(0, 12, 28, .75); border: 1px solid var(--edge); border-radius: 12px; padding: 13px 14px; width: 100%; }
+  input[type=text]::placeholder { color: var(--mute); }
+  input[type=text]:focus { outline: 2px solid var(--gold); outline-offset: 1px; border-color: transparent; }
+  .ipucu { color: var(--mute); font-size: 13px; margin-top: -6px; margin-bottom: 14px; }
+  .ana { display: block; width: 100%; font: inherit; font-weight: 650; font-size: 17px; color: #1a1205; background: var(--gold); border: 0; border-radius: 14px; padding: 15px; cursor: pointer; box-shadow: 0 8px 24px rgba(217, 168, 91, .25); }
+  .ana:disabled { opacity: 0.45; box-shadow: none; }
+
+  .sonuc { margin-top: 14px; padding: 12px 14px; border-radius: 12px; font-size: 15px; display: none; }
+  .sonuc.iyi { display: block; background: rgba(76, 211, 148, 0.12); color: #9ff0c8; border: 1px solid rgba(76, 211, 148, 0.35); }
+  .sonuc.kotu { display: block; background: rgba(255, 96, 96, 0.1); color: #ffb3b3; border: 1px solid rgba(255, 96, 96, 0.35); }
+
+  /* fotoğraf / video seçimi: kamera ya da galeri */
+  .kaynaklar { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-bottom: 14px; }
+  .kaynak { position: relative; display: grid; place-items: center; gap: 4px; min-height: 96px; padding: 12px 8px; border: 1.5px dashed var(--edge-strong); border-radius: 14px; background: rgba(0, 12, 28, .5); color: var(--fg); text-align: center; font-weight: 600; cursor: pointer; margin: 0; }
+  .kaynak i { font-style: normal; font-size: 26px; line-height: 1; }
+  .kaynak small { color: var(--mute); font-weight: 400; font-size: 12px; }
+  .kaynak.genis { grid-column: 1 / -1; min-height: 0; padding: 12px; grid-auto-flow: column; justify-content: center; gap: 10px; border-style: solid; border-color: var(--edge); }
+  .kaynak input { position: absolute; inset: 0; opacity: 0; cursor: pointer; width: 100%; }
+  .kaynak:active { border-color: var(--gold); }
+  .onizleme { position: relative; margin-bottom: 14px; border-radius: 6px; background: #fbf7ee; padding: 10px 10px 34px; box-shadow: 0 14px 36px rgba(0, 0, 0, .45); transform: rotate(-1.2deg); }
+  .onizleme img, .onizleme video { display: block; width: 100%; max-height: 420px; object-fit: contain; background: #d9d2c3; border-radius: 2px; }
+  .onizleme .bilgi { position: absolute; left: 12px; right: 12px; bottom: 8px; color: #5b4a36; font: italic 400 17px/1.1 var(--serif); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .onizleme button { position: absolute; top: -10px; right: -10px; width: 34px; height: 34px; border-radius: 50%; border: 1px solid var(--edge-strong); background: var(--bg); color: var(--fg); font-size: 18px; line-height: 1; cursor: pointer; }
+  .ilerleme { height: 6px; border-radius: 3px; background: rgba(255, 255, 255, .1); overflow: hidden; margin-top: 10px; }
+  .ilerleme i { display: block; height: 100%; width: 0; background: var(--gold); transition: width .2s; }
+
+  .simdi { display: flex; gap: 12px; align-items: center; }
+  .dalga { display: inline-flex; gap: 3px; align-items: end; height: 18px; flex: none; }
+  .dalga i { width: 3px; background: var(--gold); border-radius: 2px; animation: d 1s ease-in-out infinite; }
+  .dalga i:nth-child(2) { animation-delay: -0.3s; } .dalga i:nth-child(3) { animation-delay: -0.6s; } .dalga i:nth-child(4) { animation-delay: -0.15s; }
+  @keyframes d { 0%, 100% { height: 4px; } 50% { height: 18px; } }
+  @media (prefers-reduced-motion: reduce) { .dalga i { animation: none; height: 10px; } }
+  .simdi small, .sira small { display: block; color: var(--gold-bright); font-size: 11px; letter-spacing: 0.14em; text-transform: uppercase; }
+  .simdi span { font-weight: 600; }
+  .sira ol { padding-left: 20px; margin-top: 6px; color: var(--soft); font-size: 14px; }
+  .sira { margin-top: 12px; }
+  .kapali { color: var(--clay); margin-bottom: 12px; }
+
+  /* şarkı önerileri (iTunes araması) ve seçilen şarkı */
+  .oneri { list-style: none; padding: 0; margin: -6px 0 14px; display: grid; gap: 6px; }
+  .oneri button, .secili { display: flex; gap: 12px; align-items: center; width: 100%; text-align: left; font: inherit; color: var(--fg); background: rgba(0, 12, 28, .75); border: 1px solid var(--edge); border-radius: 12px; padding: 8px; cursor: pointer; }
+  .oneri button:hover, .oneri button:focus-visible { border-color: var(--gold); }
+  .oneri img, .secili img, .simdi img { width: 48px; height: 48px; border-radius: 8px; object-fit: cover; flex: none; background: rgba(255, 255, 255, .08); }
+  .oneri b, .secili b { display: block; font-size: 15px; font-weight: 600; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  .oneri span, .secili span { display: block; font-size: 13px; color: var(--soft); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  .oneri div, .secili div { min-width: 0; flex: 1; }
+  .secili { border-color: var(--gold); margin: -6px 0 14px; cursor: default; }
+  .secili button { font: inherit; font-size: 13px; color: var(--soft); background: none; border: 1px solid var(--edge); border-radius: 8px; padding: 6px 10px; cursor: pointer; flex: none; }
+  .izin { display: flex; gap: 10px; align-items: flex-start; color: var(--fg); font-size: 14px; line-height: 1.4; margin-bottom: 6px; cursor: pointer; }
+  .izin input { flex: none; width: 22px; height: 22px; margin-top: 1px; accent-color: var(--gold); }
+  .ayrinti { margin: 0 0 14px 32px; color: var(--soft); font-size: 13px; }
+  .ayrinti summary { color: var(--gold-bright); cursor: pointer; }
+  .ayrinti ul { padding-left: 18px; margin-top: 8px; display: grid; gap: 6px; }
+  .ts:empty { display: none; }
+  .ts { margin-bottom: 12px; }
+  footer { color: var(--mute); font-size: 12px; text-align: center; margin-top: 22px; }
+  [hidden] { display: none !important; }
+</style>
+</head>
+<body>
+<img class="kilim" src="kilim-ust.webp" alt="">
+<main>
+  <header>
+    <img src="logo.webp" alt="GakCoding">
+    <small>1 Kasım 2026 · Elazığ</small>
+  </header>
+
+  <h1>Salonun ekranı <em>senin</em></h1>
+  <p class="giris">Şarkı iste, fotoğraf ya da kısa video gönder. Onaylananlar salondaki ekrana düşer.</p>
+
+  <div class="sekme" role="tablist">
+    <button role="tab" id="t-sarki" aria-selected="true" aria-controls="p-sarki">🎵 Şarkı iste</button>
+    <button role="tab" id="t-foto" aria-selected="false" aria-controls="p-foto">📸 Foto / video</button>
+  </div>
+
+  <section id="p-sarki" role="tabpanel">
+    <form class="kart" id="f-sarki">
+      <p class="kapali" id="sarki-kapali" hidden>Şarkı istekleri şu an kapalı.</p>
+      <label>Şarkı<input type="text" id="metin" maxlength="200" placeholder="Şarkı ya da sanatçı adı yaz" autocomplete="off" required></label>
+      <ul class="oneri" id="oneri" aria-label="Şarkı önerileri"></ul>
+      <div class="secili" id="secili" hidden><img alt=""><div><b></b><span></span></div><button type="button" id="secim-kaldir">Değiştir</button></div>
+      <p class="ipucu">Şarkının adını yaz, listeden seç. YouTube linki de yapıştırabilirsin.</p>
+      <label>Adın ya da takımın (isteğe bağlı)<input type="text" class="kim" maxlength="40" placeholder="ör. Takım Kartal"></label>
+      <div class="ts"></div>
+      <button class="ana" type="submit">Sıraya gönder</button>
+      <div class="sonuc" role="status"></div>
+    </form>
+    <div class="kart" id="durum" hidden>
+      <div class="simdi"><img id="calan-kapak" alt="" hidden><span class="dalga"><i></i><i></i><i></i><i></i></span><div><small>Şimdi çalıyor</small><span id="calan">—</span></div></div>
+      <div class="sira" id="sira-kutu" hidden><small>Sıradakiler</small><ol id="sira"></ol></div>
+    </div>
+  </section>
+
+  <section id="p-foto" role="tabpanel" hidden>
+    <form class="kart" id="f-foto">
+      <p class="kapali" id="foto-kapali" hidden>Fotoğraf gönderimi şu an kapalı.</p>
+      <div class="kaynaklar" id="kaynaklar">
+        <label class="kaynak"><i>📷</i>Fotoğraf çek<input type="file" accept="image/*" capture="environment" data-tur="foto"></label>
+        <label class="kaynak" id="video-cek"><i>🎥</i>Video çek<small>en fazla 20 sn</small><input type="file" accept="video/*" capture="environment" data-tur="video"></label>
+        <label class="kaynak genis"><i>🖼️</i><span id="galeri-yazi">Galeriden seç</span><input type="file" id="galeriden" accept="image/*,video/*"></label>
+      </div>
+      <div class="onizleme" id="onizleme" hidden><div id="oniz-kutu"></div><span class="bilgi" id="oniz-bilgi"></span><button type="button" id="oniz-sil" aria-label="Seçimi kaldır">×</button></div>
+      <label>Adın ya da takımın (isteğe bağlı)<input type="text" class="kim" maxlength="40" placeholder="ör. Takım Kartal"></label>
+      <label>Altına bir not (isteğe bağlı)<input type="text" id="yazi" maxlength="80" placeholder="ör. Gece 3'te ilk çalışan sürüm"></label>
+      <label class="izin"><input type="checkbox" id="izin"><span>Gönderdiğim fotoğrafın/videonun salondaki ekranda gösterilmesine, düzenleyen topluluğun sosyal medya hesaplarında ve topluluğun sitesinde paylaşılmasına izin veriyorum.</span></label>
+      <details class="ayrinti">
+        <summary>Ayrıntılar</summary>
+        <ul>
+          <li><b>Ne alınır:</b> gönderdiğin fotoğraf ya da video, yazdıysan adın ve notun.</li>
+          <li><b>Ne için:</b> GakCoding salonundaki ekranda göstermek; etkinliğin tanıtımı için düzenleyen topluluğun sosyal medya hesaplarında ve topluluğun sitesinde paylaşmak. Paylaşırken adını, yazdıysan, anabiliriz.</li>
+          <li><b>Kim karar verir:</b> sosyal medyada ve sitede paylaşmadan önce her gönderiye bakılır; uygunsuz olan ekrandan da kaldırılır.</li>
+          <li><b>Başkaları:</b> fotoğrafta başka kişiler varsa, paylaşılmasına onların da razı olduğundan emin ol.</li>
+          <li><b>Hakların:</b> iznini istediğin zaman geri alabilirsin. Kaldırılmasını istediğin bir paylaşım için topluluğun sitesi üzerinden bize ulaş; kaldırırız. 6698 sayılı KVKK'daki hakların saklıdır.</li>
+        </ul>
+      </details>
+      <div class="ts"></div>
+      <button class="ana" type="submit" disabled>Ekrana gönder</button>
+      <div class="ilerleme" id="ilerleme" hidden><i></i></div>
+      <div class="sonuc" role="status"></div>
+    </form>
+  </section>
+
+  <footer>Gönderdiğin fotoğraf ve videolar onaylanırsa salondaki ekranda gösterilir.<br>Düzenleyen topluluk · topluluğun sitesi</footer>
+</main>
+
+<script>
+(() => {
+  const $ = (s) => document.querySelector(s);
+  const sakla = (k, v) => { try { v === undefined ? localStorage.removeItem(k) : localStorage.setItem(k, v); } catch {} };
+  const al = (k) => { try { return localStorage.getItem(k); } catch { return null; } };
+  const VIDEO_SN = 20, VIDEO_MB = 40;
+
+  /* sekmeler */
+  function sekmeSec(ad) {
+    for (const t of ['sarki', 'foto']) {
+      $(`#t-${t}`).setAttribute('aria-selected', String(t === ad));
+      $(`#p-${t}`).hidden = t !== ad;
+    }
+  }
+  $('#t-sarki').onclick = () => sekmeSec('sarki');
+  $('#t-foto').onclick = () => sekmeSec('foto');
+  if (new URLSearchParams(location.search).get('s') === 'foto') sekmeSec('foto');
+
+  /* ad alanı hatırlanır */
+  document.querySelectorAll('.kim').forEach((el) => {
+    el.value = al('gak-kim') || '';
+    el.addEventListener('input', () => { sakla('gak-kim', el.value); document.querySelectorAll('.kim').forEach((o) => { if (o !== el) o.value = el.value; }); });
+  });
+
+  function sonuc(form, iyi, yazi) {
+    const k = form.querySelector('.sonuc');
+    k.className = yazi ? `sonuc ${iyi ? 'iyi' : 'kotu'}` : 'sonuc';
+    k.textContent = yazi || '';
+  }
+
+  /* ayarlar: kapalı mı, Turnstile var mı, şimdi ne çalıyor. İlk çağrıda sunucu cihaz çerezini de verir. */
+  let tsAnahtar = '', secilen = null, ayar = { fotoAcik: true, videoAcik: true };
+  const tsJeton = {}, tsKimlik = {};
+  function fotoDugmesi() { $('#f-foto .ana').disabled = !secilen || !$('#izin').checked || !ayar.fotoAcik || (secilen.tur === 'video' && !ayar.videoAcik); }
+  $('#izin').addEventListener('change', () => fotoDugmesi());
+  async function ayarCek() {
+    try {
+      const a = ayar = await (await fetch('/api/ayar', { cache: 'no-store', credentials: 'same-origin' })).json();
+      $('#sarki-kapali').hidden = a.sarkiAcik; $('#f-sarki .ana').disabled = !a.sarkiAcik;
+      $('#foto-kapali').hidden = a.fotoAcik;
+      $('#kaynaklar').hidden = !a.fotoAcik;
+      $('#video-cek').hidden = !a.videoAcik;
+      $('#galeriden').accept = a.videoAcik ? 'image/*,video/*' : 'image/*';
+      $('#galeri-yazi').textContent = a.videoAcik ? 'Galeriden seç (foto ya da video)' : 'Galeriden seç';
+      fotoDugmesi();
+      if (a.turnstile && !tsAnahtar) turnstileKur(a.turnstile);
+      const s = a.simdi || {};
+      $('#durum').hidden = !s.calan && !(s.sira || []).length;
+      $('#calan').textContent = s.calan || '—';
+      $('#calan-kapak').hidden = !s.kapak; if (s.kapak) $('#calan-kapak').src = s.kapak;
+      $('#sira-kutu').hidden = !(s.sira || []).length;
+      $('#sira').innerHTML = '';
+      for (const x of s.sira || []) { const li = document.createElement('li'); li.textContent = x; $('#sira').append(li); }
+    } catch {}
+  }
+  function turnstileKur(anahtar) {
+    tsAnahtar = anahtar;
+    window.tsHazir = () => {
+      document.querySelectorAll('form').forEach((f) => {
+        tsKimlik[f.id] = turnstile.render(f.querySelector('.ts'), {
+          sitekey: anahtar, theme: 'dark', size: 'flexible', appearance: 'interaction-only', language: 'tr',
+          callback: (t) => { tsJeton[f.id] = t; }, 'expired-callback': () => { tsJeton[f.id] = ''; },
+        });
+      });
+    };
+    const s = document.createElement('script');
+    s.src = 'https://challenges.cloudflare.com/turnstile/v0/api.js?onload=tsHazir&render=explicit';
+    s.async = true; document.head.append(s);
+  }
+  // doğrulama arka planda biter; gönder'e erken basılırsa birkaç saniye bekle
+  async function jeton(form) {
+    if (!tsAnahtar) return '';
+    for (let i = 0; i < 40 && !tsJeton[form.id]; i++) await new Promise((r) => setTimeout(r, 250));
+    return tsJeton[form.id] || '';
+  }
+  function tsSifirla(form) {
+    if (!tsAnahtar || !window.turnstile) return;
+    tsJeton[form.id] = '';
+    turnstile.reset(tsKimlik[form.id]);
+  }
+  // ücretsiz katmanda günlük istek sınırı var: yalnız sayfa ekrandayken, 30 sn'de bir,
+  // 20 dk hiç dokunulmazsa durur (dokununca ya da sayfaya dönünce yeniden başlar)
+  let sonDokunus = Date.now();
+  ['pointerdown', 'keydown'].forEach((t) => addEventListener(t, () => { if (Date.now() - sonDokunus > 20 * 60000) ayarCek(); sonDokunus = Date.now(); }, { passive: true }));
+  ayarCek();
+  setInterval(() => { if (!document.hidden && Date.now() - sonDokunus < 20 * 60000) ayarCek(); }, 30000);
+  document.addEventListener('visibilitychange', () => { if (!document.hidden) { sonDokunus = Date.now(); ayarCek(); } });
+
+  /* XHR: video yüklenirken ilerleme gösterilir */
+  function istekAt(yol, govde, basliklar, ilerleme) {
+    return new Promise((ok, red) => {
+      const x = new XMLHttpRequest();
+      x.open('POST', yol);
+      for (const [k, v] of Object.entries(basliklar)) x.setRequestHeader(k, v);
+      if (ilerleme) x.upload.onprogress = (e) => { if (e.lengthComputable) ilerleme(e.loaded / e.total); };
+      x.onload = () => { let d = {}; try { d = JSON.parse(x.responseText); } catch {} ok({ ok: x.status >= 200 && x.status < 300, d }); };
+      x.onerror = () => red(new Error('Failed to fetch'));
+      x.send(govde);
+    });
+  }
+  async function gonder(form, yol, govde, basliklar = {}, ilerleme) {
+    const dugme = form.querySelector('.ana'), eski = dugme.textContent;
+    dugme.disabled = true; dugme.textContent = 'Gönderiliyor…';
+    try {
+      const { ok, d } = await istekAt(yol, govde, basliklar, ilerleme);
+      if (!ok) throw new Error(d.hata || 'Gönderilemedi, tekrar dene.');
+      sonuc(form, true, d.mesaj || 'Gönderildi!');
+      return true;
+    } catch (e) {
+      sonuc(form, false, e.message === 'Failed to fetch' ? 'İnternete ulaşılamadı. Bağlantını kontrol edip tekrar dene.' : e.message);
+      return false;
+    } finally {
+      dugme.disabled = false; dugme.textContent = eski; tsSifirla(form);
+    }
+  }
+
+  /* şarkı: yazdıkça iTunes'tan öneri (kapak + ad + sanatçı); YouTube videosunu sunucu bulur */
+  let secim = null, araZaman, araNo = 0;
+  const linkMi = (v) => /https?:\/\//i.test(v) || /^[\w-]{11}$/.test(v.trim());
+  function oneriTemizle() { $('#oneri').innerHTML = ''; }
+  function secimGoster(x) {
+    secim = x;
+    const k = $('#secili');
+    k.hidden = !x; $('#metin').closest('label').hidden = !!x; $('#metin').required = !x;
+    if (!x) return;
+    k.querySelector('img').src = x.kapak; k.querySelector('b').textContent = x.ad; k.querySelector('span').textContent = x.sanatci;
+    oneriTemizle();
+  }
+  $('#secim-kaldir').onclick = () => { secimGoster(null); $('#metin').focus(); };
+  async function ara(q) {
+    const no = ++araNo;
+    try {
+      const r = await fetch(`https://itunes.apple.com/search?media=music&entity=song&limit=6&country=TR&term=${encodeURIComponent(q)}`);
+      const d = await r.json();
+      if (no !== araNo) return; // daha yeni bir arama var
+      $('#oneri').innerHTML = '';
+      for (const t of d.results || []) {
+        const x = { ad: t.trackName, sanatci: t.artistName, kapak: String(t.artworkUrl100 || '').replace(/\/100x100bb\./, '/300x300bb.') };
+        const li = document.createElement('li'), b = document.createElement('button');
+        b.type = 'button';
+        b.innerHTML = '<img alt="" loading="lazy"><div><b></b><span></span></div>';
+        b.querySelector('img').src = x.kapak; b.querySelector('b').textContent = x.ad; b.querySelector('span').textContent = x.sanatci;
+        b.onclick = () => secimGoster(x);
+        li.append(b); $('#oneri').append(li);
+      }
+    } catch { /* öneri gelmezse yazı olarak gönderilir, sunucu yine arar */ }
+  }
+  $('#metin').addEventListener('input', () => {
+    clearTimeout(araZaman);
+    const v = $('#metin').value.trim();
+    if (v.length < 2 || linkMi(v)) { araNo++; oneriTemizle(); return; }
+    araZaman = setTimeout(() => ara(v), 300);
+  });
+
+  $('#f-sarki').addEventListener('submit', async (e) => {
+    e.preventDefault();
+    const f = e.currentTarget;
+    const metin = secim ? `${secim.sanatci} – ${secim.ad}` : $('#metin').value;
+    const ok = await gonder(f, '/api/sarki', JSON.stringify({ metin, secim, kim: f.querySelector('.kim').value, ts: await jeton(f) }), { 'content-type': 'application/json' });
+    if (ok) { $('#metin').value = ''; secimGoster(null); oneriTemizle(); ayarCek(); }
+  });
+
+  /* fotoğraf: telefonda küçültülür (en uzun kenar 1600 px, JPEG; konum gibi EXIF bilgileri de böylece silinir) */
+  async function kucult(dosya) {
+    let kaynak;
+    try { kaynak = await createImageBitmap(dosya, { imageOrientation: 'from-image' }); }
+    catch {
+      kaynak = await new Promise((ok, red) => { const i = new Image(); i.onload = () => ok(i); i.onerror = red; i.src = URL.createObjectURL(dosya); });
+    }
+    const w0 = kaynak.width, h0 = kaynak.height;
+    for (const [kenar, kalite] of [[1600, 0.82], [1400, 0.72], [1100, 0.65]]) {
+      const o = Math.min(1, kenar / Math.max(w0, h0));
+      const c = document.createElement('canvas');
+      c.width = Math.round(w0 * o); c.height = Math.round(h0 * o);
+      c.getContext('2d').drawImage(kaynak, 0, 0, c.width, c.height);
+      const blob = await new Promise((ok) => c.toBlob(ok, 'image/jpeg', kalite));
+      if (blob && blob.size < 1_200_000) return blob;
+    }
+    throw new Error('Bu fotoğraf açılamadı. Başka bir fotoğraf ya da ekran görüntüsü dene.');
+  }
+  /* video: süre ve boyut telefonda denetlenir (sunucu da boyutu denetler) */
+  function videoSuresi(url) {
+    return new Promise((ok) => {
+      const v = document.createElement('video');
+      v.preload = 'metadata'; v.muted = true;
+      v.onloadedmetadata = () => ok(v.duration);
+      v.onerror = () => ok(NaN);
+      setTimeout(() => ok(NaN), 6000);
+      v.src = url;
+    });
+  }
+  function secimiKaldir(yazi) {
+    secilen = null;
+    document.querySelectorAll('#kaynaklar input').forEach((i) => { i.value = ''; });
+    $('#onizleme').hidden = true; $('#oniz-kutu').replaceChildren();
+    $('#kaynaklar').hidden = !ayar.fotoAcik;
+    fotoDugmesi();
+    if (yazi) sonuc($('#f-foto'), false, yazi);
+  }
+  $('#oniz-sil').onclick = () => secimiKaldir();
+  $('#yazi').addEventListener('input', () => { $('#oniz-bilgi').textContent = $('#yazi').value ? `“${$('#yazi').value}”` : ''; });
+
+  $('#kaynaklar').addEventListener('change', async (e) => {
+    const d = e.target.files?.[0];
+    const f = $('#f-foto');
+    sonuc(f, true, '');
+    if (!d) return;
+    const video = d.type.startsWith('video/') || e.target.dataset.tur === 'video';
+    if (video && !ayar.videoAcik) return secimiKaldir('Video gönderimi şu an kapalı.');
+    try {
+      let el;
+      if (video) {
+        if (d.size > VIDEO_MB * 1024 * 1024) throw new Error(`Video çok büyük (en fazla ${VIDEO_MB} MB). Daha kısa çek.`);
+        const url = URL.createObjectURL(d);
+        const sn = await videoSuresi(url);
+        if (sn > VIDEO_SN + 1) throw new Error(`Video ${Math.round(sn)} sn. En fazla ${VIDEO_SN} sn olabilir.`);
+        secilen = { tur: 'video', blob: d, ad: d.name || 'video.mp4' };
+        el = document.createElement('video');
+        Object.assign(el, { src: url, muted: true, loop: true, autoplay: true, playsInline: true, controls: false });
+      } else {
+        $('#oniz-kutu').textContent = 'Hazırlanıyor…'; $('#onizleme').hidden = false;
+        secilen = { tur: 'foto', blob: await kucult(d), ad: 'foto.jpg' };
+        el = document.createElement('img');
+        el.src = URL.createObjectURL(secilen.blob); el.alt = 'Seçilen fotoğraf';
+      }
+      $('#oniz-kutu').replaceChildren(el);
+      $('#oniz-bilgi').textContent = $('#yazi').value ? `“${$('#yazi').value}”` : '';
+      $('#onizleme').hidden = false; $('#kaynaklar').hidden = true;
+      fotoDugmesi();
+    } catch (err) {
+      secimiKaldir(err.message);
+    }
+  });
+
+  $('#f-foto').addEventListener('submit', async (e) => {
+    e.preventDefault();
+    const f = e.currentTarget;
+    if (!secilen) return;
+    const video = secilen.tur === 'video';
+    const fd = new FormData();
+    fd.append('dosya', secilen.blob, secilen.ad);
+    fd.append('kim', f.querySelector('.kim').value);
+    fd.append('yazi', $('#yazi').value);
+    fd.append('izin', $('#izin').checked ? '1' : '');
+    fd.append('ts', await jeton(f));
+    const bar = $('#ilerleme');
+    bar.hidden = !video; bar.firstElementChild.style.width = '0';
+    const ok = await gonder(f, video ? '/api/video' : '/api/foto', fd, {}, video ? (p) => { bar.firstElementChild.style.width = `${Math.round(p * 100)}%`; } : null);
+    bar.hidden = true;
+    if (ok) {
+      const mesaj = f.querySelector('.sonuc').textContent;
+      secimiKaldir(); $('#yazi').value = '';
+      sonuc(f, true, mesaj);
+    } else fotoDugmesi();
+  });
+})();
+</script>
+</body>
+</html>

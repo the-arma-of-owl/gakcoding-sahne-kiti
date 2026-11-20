@@ -1,0 +1,7 @@
+.wrangler/
+.dev.vars
+node_modules/
+.hesap/
+.yonetici-sifresi
+.son-yayin.log
+.turnstile-gizli

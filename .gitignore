@@ -1,0 +1,13 @@
+.env*
+.dev.vars
+.hesap/
+.wrangler/
+.yonetici-sifresi
+node_modules/
+__pycache__/
+sahne-ekranlari/yuklenen/
+sahne-ekranlari/galeri/*
+!sahne-ekranlari/galeri/BENIOKU.txt
+docs/demo/_kare/
+docs/demo/*.mp4
+giris-videosu/robot-dongu.mp4
